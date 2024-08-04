@@ -10,51 +10,41 @@ class game {
 		
 		this.playerOneHand = new CustomImage("./assets/hand.png");
 		this.playerTwoHand = new CustomImage("./assets/player-two-hand.png");
+
 		this.playerOneAttackButton = new CustomImage("./assets/attack-green.png");
 		this.playerTwoAttackButton = new CustomImage("./assets/attack-blue.png");
 		
 		this.handleCanvasClick = this.handleCanvasClick.bind(this);
     	this.canvas.addEventListener("click", this.handleCanvasClick);
+	
+		this.playerone = new Player("attack", this.gameCanvas.getHeight(), this.playerOneHand);
+		this.playertwo = new Player("retreat", this.gameCanvas.getHeight(), this.playerTwoHand);
+
+
 		
-		this.handInitialY = this.gameCanvas.getHeight() - 883 / 2; // Initial Y position of the hand
-
-		// console.log("initial y pos: " + this.handInitialY);
-		// console.log("canvas height: " + this.gameCanvas.getHeight());
-
-
-		this.playerOneAnimating = false;
-		this.playerTwoAnimating = false;
-
-		this.playerOneButtonY = this.gameCanvas.getHeight() - 110;
-		this.playerTwoButtonY = 0 - 131 / 2;
+		// atack hand
+		this.handInitialY = this.playerone.hand.getInitialY(); // Initial Y position of the hand
 		this.handCurrentY = this.handInitialY; // Current Y position
+		
 		this.maxHandHeight = this.gameCanvas.getHeight() - 883 + 40 ; // Height of the hand image
-		this.maxHeigthRetreat = -700;
-
-		this.playerTwoInitialY = - 883 / 2;
-		this.playerTwoCurrenty = this.playerTwoInitialY;
-
-		this.isRising = true;
-		this.animationFrame = null;
-		
-		
+		// retreat hand
 		this.handTwoInitialY = - 883 / 2;
         this.handTwoCurrentY = this.handTwoInitialY;
-        this.maxHandTwoHeight = this.gameCanvas.getHeight() / 2 - 883 / 2;
-		
-		this.isPlayerOneAnimating = false;
-		this.isPlayerTwoAnimating = false;
-		
-		this.pauseDuration = 2000;
-		this.puseTimer = 0;
-		this.animationSpeed = 2;
-		this.isPlayerOnePaused = false;
-		this.isPlayerTwoPaused = false;
+		this.maxHeigthRetreat = -700;
 
+
+		this.pauseDuration = 1000;
+		this.animationSpeed = 50;
+		this.animationFrame = null;
+		
+		// Player one
         this.isPlayerOneRising = true;
+		this.isPlayerOnePaused = false;
+		this.isPlayerOneAnimating = false;
+		// Player two
+		this.isPlayerTwoAnimating = false;
         this.isPlayerTwoFalling = true;
-
-		this.playerTwoRising = true;
+		this.isPlayerTwoPaused = false;
 
 		this.animateRetreat = this.animateRetreat.bind(this);
 	}
@@ -72,9 +62,7 @@ class game {
 		}
 
 		if (this.isPlayerTwoRising) {
-			console.log("hand two current y: " + this.handTwoCurrentY);
 			this.handTwoCurrentY -= this.animationSpeed;
-			console.log("hand two current y: " + this.handTwoCurrentY);
 			if (this.handTwoCurrentY <= this.maxHeigthRetreat){
 				this.handTwoCurrentY = this.maxHeigthRetreat;
 				this.isPlayerTwoRising = false;
@@ -87,7 +75,6 @@ class game {
 			}
 		}
 		else {
-			console.log("hreturning to  y: " + this.handTwoCurrentY);
 			this.handTwoCurrentY += this.animationSpeed;
 			if (this.handTwoCurrentY >= this.handTwoInitialY) {
 				this.handTwoCurrentY = this.handTwoInitialY;
@@ -146,8 +133,8 @@ class game {
 		let playerTwoBottomX = this.gameCanvas.getCenterX(atackImageWidth);
 		let playerTwoBottomY = -20;
 
-		console.log("player two bottom x: " + playerTwoBottomX);
-		console.log("player two bottom y: " + playerTwoBottomY);
+		// console.log("player two bottom x: " + playerTwoBottomX);
+		// console.log("player two bottom y: " + playerTwoBottomY);
 
 		this.playerTwoAttackButton.setImageDimensions(playerTwoBottomX, playerTwoBottomY, atackImageWidth, atackImageHeight);
 		this.playerTwoAttackButton.draw(this.context);
