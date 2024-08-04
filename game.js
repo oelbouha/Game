@@ -1,5 +1,6 @@
 import game_Canvas from './canvas.js';
 import CustomImage from './image.js';
+import Player from './Player.js';
 
 class game {
 	constructor() {
@@ -27,16 +28,12 @@ class game {
 		this.playerOneButtonY = this.gameCanvas.getHeight() - 110;
 		this.playerTwoButtonY = 0 - 131 / 2;
 		this.handCurrentY = this.handInitialY; // Current Y position
-		this.maxHandHeight = this.gameCanvas.getHeight() - 883 ; // Height of the hand image
-		this.maxHeigthRetreat = this.gameCanvas.getHeight() - 883;
+		this.maxHandHeight = this.gameCanvas.getHeight() - 883 + 40 ; // Height of the hand image
+		this.maxHeigthRetreat = -700;
 
 		this.playerTwoInitialY = - 883 / 2;
 		this.playerTwoCurrenty = this.playerTwoInitialY;
 
-		
-		// this.animateRetreat = this.animateRetreat.bind(this);
-		// this.animateAttack = this.animateAttack.bind(this);
-		
 		this.isRising = true;
 		this.animationFrame = null;
 		
@@ -48,7 +45,7 @@ class game {
 		this.isPlayerOneAnimating = false;
 		this.isPlayerTwoAnimating = false;
 		
-		this.pauseDuration = 1000;
+		this.pauseDuration = 2000;
 		this.puseTimer = 0;
 		this.animationSpeed = 2;
 		this.isPlayerOnePaused = false;
@@ -56,18 +53,56 @@ class game {
 
         this.isPlayerOneRising = true;
         this.isPlayerTwoFalling = true;
-		
-		// this.maxHeigthplayerOne = this.gameCanvas.getHeight() - 883;
 
+		this.playerTwoRising = true;
 
-		// this.gameIcon = "assets/back.jpeg";
-		// this.background = "assets/background-images/back.jpeg";
-		// this.title = "assets/title-sheet0.png";
-		// this.playButton = "assets/player.png";
-		// this.soundButton = "assets/sound-button.png";
-		// this.soundOffButton = "assets/sound-off-button.png";
-		// this.infoButton = "assets/info-button.png";
+		this.animateRetreat = this.animateRetreat.bind(this);
 	}
+
+	animateRetreat() {
+
+		if (!this.isPlayerTwoAnimating) {
+			cancelAnimationFrame(this.animationFrame);
+			return;
+		}
+
+		if (this.isPlayerTwoPaused) {
+			this.animationFrame = requestAnimationFrame(() => this.animateRetreat());
+			return;
+		}
+
+		if (this.isPlayerTwoRising) {
+			console.log("hand two current y: " + this.handTwoCurrentY);
+			this.handTwoCurrentY -= this.animationSpeed;
+			console.log("hand two current y: " + this.handTwoCurrentY);
+			if (this.handTwoCurrentY <= this.maxHeigthRetreat){
+				this.handTwoCurrentY = this.maxHeigthRetreat;
+				this.isPlayerTwoRising = false;
+				this.isPlayerTwoPaused = true;
+				setTimeout(() => {
+					this.isPlayerTwoPaused = false;
+					this.animateRetreat();
+				}, this.pauseDuration);
+				return;
+			}
+		}
+		else {
+			console.log("hreturning to  y: " + this.handTwoCurrentY);
+			this.handTwoCurrentY += this.animationSpeed;
+			if (this.handTwoCurrentY >= this.handTwoInitialY) {
+				this.handTwoCurrentY = this.handTwoInitialY;
+				this.isPlayerTwoAnimating = false;
+				this.isPlayerTwoRising = true;
+			}
+		}
+
+		this.drawAll();
+
+		if (this.isPlayerTwoAnimating) {
+			this.animationFrame = requestAnimationFrame(() => this.animateRetreat());
+		}
+	}
+
 	drawAll() {
 		let canvasWidth = this.gameCanvas.getWidth();
 		let canvasHeight = this.gameCanvas.getHeight();
@@ -125,7 +160,11 @@ class game {
 			requestAnimationFrame(() => this.animateAttack());
 		}
 		if (this.isPlayerTwoAnimating) {
-			requestAnimationFrame(() => this.animateAttackTop());
+			requestAnimationFrame(() => this.animateRetreat());
+		}
+
+		if (this.isPlayerTwoAnimating) {
+			requestAnimationFrame(() => this.animateRetreat());
 		}
 	}
 
@@ -180,7 +219,7 @@ class game {
             this.animationFrame = requestAnimationFrame(this.animateAttackTop);
             return;
         }
-    
+
         if (this.isPlayerTwoFalling) {
             // Falling (for player two, falling means moving down the screen)
             this.handTwoCurrentY += this.animationSpeed;
@@ -217,12 +256,12 @@ class game {
 		let y = event.pageY - rect.top;
 
         if (this.isButtonClicked(x, y, this.playerTwoAttackButton)) {
-            console.log("Clicked on player two attack");
-            if (!this.isPlayerTwoAnimating) {
+			if (!this.isPlayerTwoAnimating) {
+				console.log("Clicked on player two attack");
                 this.isPlayerTwoAnimating = true;
-                this.isPlayerTwoFalling = true;
+                this.isPlayerTwoRising = true;
                 this.handTwoCurrentY = this.handTwoInitialY;
-                this.animationFrame = requestAnimationFrame(this.animateAttackTop);
+                this.animationFrame = requestAnimationFrame(this.animateRetreat);
             }
         }
         if (this.isButtonClicked(x, y, this.playerOneAttackButton)) {
