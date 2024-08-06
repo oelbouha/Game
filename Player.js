@@ -1,6 +1,5 @@
 import Hand from "./Hand.js";
 
-
 class Player {
 	constructor(position, initialRole, canvasHeight, PlayerHandImage, handSize) {
 		this.isMissed = false;
@@ -17,12 +16,15 @@ class Player {
 		this.isPlayerRising = true;
 		this.isPlayerFalling = true;
 
-		this.pauseDuration = 200;
+		this.pauseDuration = 700;
 		this.animationSpeed = 100;
 		this.animationFrame = null;
 		
 		this.maxAttackHeight = canvasHeight - 883 + 40;
+		this.maxTopAttackHeight = canvasHeight - 1090;
 		this.maxRetreatHeight = -700;
+		this.maxRetreatButtomHeight = 250;
+		this.maxRetreatToHeight = -250;
 
 		this.hnadInitialY = this.hand.getInitialY();
 		this.handCurrentY = this.hnadInitialY;
@@ -80,8 +82,8 @@ class Player {
 		if (this.isPlayerFalling) {
             // Falling (for player two, falling means moving down the screen)
             this.handCurrentY += this.animationSpeed;
-            if (this.handCurrentY >= this.maxAttackHeight) {
-                this.handCurrentY = this.maxAttackHeight;
+            if (this.handCurrentY >= this.maxTopAttackHeight) {
+                this.handCurrentY = this.maxTopAttackHeight;
 				if (this.isHitTheOpponent()){
 					this.counter += 1;
 				}
@@ -187,15 +189,20 @@ class Player {
 	}
 	
 	animateButtomRetreat() {
+		console.log("animating retreat ...");
 		if (this.isPlayerFalling) {
+			console.log("this current Y   |   " + this.handCurrentY);
+			console.log("this max retreat   |   " + this.maxRetreatButtomHeight);
 			this.handCurrentY += this.animationSpeed;
-			if (this.handCurrentY >= this.maxRetreatHeight) {
-				this.handCurrentY = this.maxRetreatHeight;
+			if (this.handCurrentY >= this.maxRetreatButtomHeight) {
+
+				this.handCurrentY = this.hand.getInitialY() + this.maxRetreatButtomHeight;
+				console.log("after update   |   " + this.handCurrentY);
 				this.isPlayerFalling = false;
 				this.isPlayerPaused = true;
 				setTimeout(() => {
 					this.isPlayerPaused = false;
-					this.animateRetreat();
+					this.animateButtomRetreat();
 				}, this.pauseDuration);
 				return;
 			}

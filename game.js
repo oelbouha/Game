@@ -56,7 +56,7 @@ class game {
 	
 	startGame() {
 		this.playerOne = new Player("top", "retreat", this.gameCanvas.getHeight(), this.playerTwoHand, this.playerOneHand);
-		this.playerTwo = new Player("buttom", "attack", this.gameCanvas.getHeight(), this.playerOneHand, this.playerTwoHand);
+		this.playerTwo = new Player("buttom", "retreat", this.gameCanvas.getHeight(), this.playerOneHand, this.playerTwoHand);
 
 		console.log(this.playerOne);
 		console.log(this.playerTwo);
@@ -140,20 +140,21 @@ class game {
 
         if (this.isButtonClicked(x, y, this.topButton)) {
 			if (!this.playerOne.isPlayerAnimating) {
-				this.playerOne.startAnimation("retreat");
+				let state = this.playerOne.state;
+				this.playerOne.startAnimation(state);
             }
         }
         if (this.isButtonClicked(x, y, this.bottomButton)) {
             if (!this.playerTwo.isPlayerAnimating) {
-				this.playerTwo.startAnimation("attack");
-				console.log("Player 2 is attacking   | " + this.playerTwo.isMissed);
+				let state = this.playerTwo.state;
+				this.playerTwo.startAnimation(state);
             }
-			if (this.playerTwo.isMissed) {
-				console.log("Player 2 missed the attack     ...");
-				this.gameManager.update(this.playerTwo);
-				this.bottomButton = this.bottomRetreatButton;
-				this.switchColors();
-			}
+			// if (this.playerTwo.isMissed) {
+			// 	console.log("Player 2 missed the attack     ...");
+			// 	this.gameManager.update(this.playerTwo);
+			// 	this.bottomButton = this.bottomRetreatButton;
+			// 	this.switchColors();
+			// }
         }
     }
 	drawScore() {
