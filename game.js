@@ -16,78 +16,41 @@ class game {
 		
 		this.handleCanvasClick = this.handleCanvasClick.bind(this);
     	this.canvas.addEventListener("click", this.handleCanvasClick);
+
+		this.waitForImagesToLoad();
+	}
 	
-		this.playerone = new Player("attack", this.gameCanvas.getHeight(), this.playerOneHand);
-		this.playertwo = new Player("retreat", this.gameCanvas.getHeight(), this.playerTwoHand);
+	waitForImagesToLoad() {
+		let images = [this.playerOneHand, this.playerTwoHand, this.playerOneAttackButton, this.playerTwoAttackButton];
+		let loadedImages = 0;
+		images.forEach((image) => {
+			if (image.loaded) {
+				loadedImages++;
+			}
+			else {
+				image.img.onload = () => {
+					loadedImages++;
+					if (loadedImages === images.length) {
+						this.startGame();
+					}
+				};
+			}
+		});
+	}
+	
+	startGame() {
+		this.playerOne = new Player("top", "retreat", this.gameCanvas.getHeight(), this.playerTwoHand, this.playerOneHand);
+		this.playerTwo = new Player("buttom", "attack", this.gameCanvas.getHeight(), this.playerOneHand, this.playerTwoHand);
 
-
-		
-		// atack hand
-		this.handInitialY = this.playerone.hand.getInitialY(); // Initial Y position of the hand
-		this.handCurrentY = this.handInitialY; // Current Y position
-		
-		this.maxHandHeight = this.gameCanvas.getHeight() - 883 + 40 ; // Height of the hand image
-		// retreat hand
-		this.handTwoInitialY = - 883 / 2;
-        this.handTwoCurrentY = this.handTwoInitialY;
-		this.maxHeigthRetreat = -700;
-
-
-		this.pauseDuration = 1000;
-		this.animationSpeed = 50;
-		this.animationFrame = null;
-		
-		// Player one
-        this.isPlayerOneRising = true;
-		this.isPlayerOnePaused = false;
-		this.isPlayerOneAnimating = false;
-		// Player two
-		this.isPlayerTwoAnimating = false;
-        this.isPlayerTwoFalling = true;
-		this.isPlayerTwoPaused = false;
-
-		this.animateRetreat = this.animateRetreat.bind(this);
+		this.gameLoop();
 	}
 
-	animateRetreat() {
-
-		if (!this.isPlayerTwoAnimating) {
-			cancelAnimationFrame(this.animationFrame);
-			return;
-		}
-
-		if (this.isPlayerTwoPaused) {
-			this.animationFrame = requestAnimationFrame(() => this.animateRetreat());
-			return;
-		}
-
-		if (this.isPlayerTwoRising) {
-			this.handTwoCurrentY -= this.animationSpeed;
-			if (this.handTwoCurrentY <= this.maxHeigthRetreat){
-				this.handTwoCurrentY = this.maxHeigthRetreat;
-				this.isPlayerTwoRising = false;
-				this.isPlayerTwoPaused = true;
-				setTimeout(() => {
-					this.isPlayerTwoPaused = false;
-					this.animateRetreat();
-				}, this.pauseDuration);
-				return;
-			}
-		}
-		else {
-			this.handTwoCurrentY += this.animationSpeed;
-			if (this.handTwoCurrentY >= this.handTwoInitialY) {
-				this.handTwoCurrentY = this.handTwoInitialY;
-				this.isPlayerTwoAnimating = false;
-				this.isPlayerTwoRising = true;
-			}
-		}
-
+	gameLoop() {
+		this.playerOne.update();
+		this.playerTwo.update();
 		this.drawAll();
 
-		if (this.isPlayerTwoAnimating) {
-			this.animationFrame = requestAnimationFrame(() => this.animateRetreat());
-		}
+		requestAnimationFrame(() => this.gameLoop());
 	}
 
 	drawAll() {
@@ -96,6 +59,7 @@ class game {
 	
 		this.context.clearRect(0, 0, canvasWidth, canvasHeight);
 	
+		// Draw background colors
 		let margin = 10;
 		let tophalf = canvasHeight / 2 - margin;
 		let bottomhalf = canvasHeight / 2 + margin;
@@ -107,157 +71,41 @@ class game {
 		this.context.fillRect(0, canvasHeight / 2, canvasWidth, bottomhalf);
 	
 		// Draw hand image first
-		let handImageWidth = 220;
-		let handImageHeight = 883;
-		let playerOneHandX = this.gameCanvas.getCenterX(handImageWidth);
-		let playerOneHandY = this.handCurrentY;
-		this.playerOneHand.setImageDimensions(playerOneHandX, playerOneHandY, handImageWidth, handImageHeight);
-		this.playerOneHand.draw(this.context);
+		let playerOneHandX = this.gameCanvas.getCenterX(this.playerOneHand.width);
+		let playerTwoHandY = this.playerTwo.getHandCurrentY();
+		this.playerOneHand.draw(this.context, playerOneHandX, playerTwoHandY);
 
 		// Draw player two hand image
-		let playerTwoHandX = this.gameCanvas.getCenterX(handImageWidth);
-		let playerTwoHandY = this.handTwoCurrentY;
-		this.playerTwoHand.setImageDimensions(playerTwoHandX, playerTwoHandY, handImageWidth, handImageHeight);
-		this.playerTwoHand.draw(this.context);
-		
+		let playerTwoHandX = this.gameCanvas.getCenterX(this.playerOneHand.width);
+		let playerOneHandY = this.playerOne.getHandCurrentY();
+		this.playerTwoHand.draw(this.context, playerTwoHandX, playerOneHandY);
 
-		// draw attack bottom images
-		let atackImageWidth = 543;
-		let atackImageHeight = 131;
 	
-		let playerOneBottomX = this.gameCanvas.getCenterX(atackImageWidth);
+		let playerOneBottomX = this.gameCanvas.getCenterX(this.playerOneAttackButton.width);
 		let playerOneBottomY = canvasHeight - 110;
-		this.playerOneAttackButton.setImageDimensions(playerOneBottomX, playerOneBottomY, atackImageWidth, atackImageHeight);
-		this.playerOneAttackButton.draw(this.context);
+		this.playerOneAttackButton.draw(this.context, playerOneBottomX, playerOneBottomY);
 		
-		let playerTwoBottomX = this.gameCanvas.getCenterX(atackImageWidth);
+		let playerTwoBottomX = this.gameCanvas.getCenterX(this.playerOneAttackButton.width);
 		let playerTwoBottomY = -20;
-
-		// console.log("player two bottom x: " + playerTwoBottomX);
-		// console.log("player two bottom y: " + playerTwoBottomY);
-
-		this.playerTwoAttackButton.setImageDimensions(playerTwoBottomX, playerTwoBottomY, atackImageWidth, atackImageHeight);
-		this.playerTwoAttackButton.draw(this.context);
-
-		this.animateAttack = this.animateAttack.bind(this);
-		this.animateAttackTop = this.animateAttackTop.bind(this);
-		
-		
-		if (this.isPlayerOneAnimating) {
-			requestAnimationFrame(() => this.animateAttack());
-		}
-		if (this.isPlayerTwoAnimating) {
-			requestAnimationFrame(() => this.animateRetreat());
-		}
-
-		if (this.isPlayerTwoAnimating) {
-			requestAnimationFrame(() => this.animateRetreat());
-		}
+		this.playerTwoAttackButton.draw(this.context, playerTwoBottomX, playerTwoBottomY);
 	}
 
-	animateAttack() {
-        if (!this.isPlayerOneAnimating) {
-            cancelAnimationFrame(this.animationFrame);
-            return;
-        }
-    
-        if (this.isPlayerOnePaused) {
-            this.animationFrame = requestAnimationFrame(this.animateAttack);
-            return;
-        }
-    
-        if (this.isPlayerOneRising) {
-            // Rising
-            this.handCurrentY -= this.animationSpeed;
-            if (this.handCurrentY <= this.maxHandHeight) {
-                this.handCurrentY = this.maxHandHeight;
-                this.isPlayerOneRising = false;
-                this.isPlayerOnePaused = true;
-                setTimeout(() => {
-                    this.isPlayerOnePaused = false;
-                    this.animateAttack();
-                }, this.pauseDuration);
-                return;
-            }
-        } else {
-            // Falling
-            this.handCurrentY += this.animationSpeed;
-            if (this.handCurrentY >= this.handInitialY) {
-                this.handCurrentY = this.handInitialY;
-                this.isPlayerOneAnimating = false;
-                this.isPlayerOneRising = true;
-            }
-        }
-    
-        this.drawAll();
-        
-        if (this.isPlayerOneAnimating) {
-            this.animationFrame = requestAnimationFrame(this.animateAttack);
-        }
-    }
 
-    animateAttackTop() {
-        if (!this.isPlayerTwoAnimating) {
-            cancelAnimationFrame(this.animationFrame);
-            return;
-        }
-    
-        if (this.isPlayerTwoPaused) {
-            this.animationFrame = requestAnimationFrame(this.animateAttackTop);
-            return;
-        }
-
-        if (this.isPlayerTwoFalling) {
-            // Falling (for player two, falling means moving down the screen)
-            this.handTwoCurrentY += this.animationSpeed;
-            if (this.handTwoCurrentY >= this.maxHandTwoHeight) {
-                this.handTwoCurrentY = this.maxHandTwoHeight;
-                this.isPlayerTwoFalling = false;
-                this.isPlayerTwoPaused = true;
-                setTimeout(() => {
-                    this.isPlayerTwoPaused = false;
-                    this.animateAttackTop();
-                }, this.pauseDuration);
-                return;
-            }
-        } else {
-            // Rising (for player two, rising means moving up the screen)
-            this.handTwoCurrentY -= this.animationSpeed;
-            if (this.handTwoCurrentY <= this.handTwoInitialY) {
-                this.handTwoCurrentY = this.handTwoInitialY;
-                this.isPlayerTwoAnimating = false;
-                this.isPlayerTwoFalling = true;
-            }
-        }
-    
-        this.drawAll();
-        
-        if (this.isPlayerTwoAnimating) {
-            this.animationFrame = requestAnimationFrame(this.animateAttackTop);
-        }
-    }
-	
 	handleCanvasClick(event) {
 		let rect = this.canvas.getBoundingClientRect();
 		let x = event.pageX -  rect.left;
 		let y = event.pageY - rect.top;
 
         if (this.isButtonClicked(x, y, this.playerTwoAttackButton)) {
-			if (!this.isPlayerTwoAnimating) {
+			if (!this.playerOne.isPlayerAnimating) {
 				console.log("Clicked on player two attack");
-                this.isPlayerTwoAnimating = true;
-                this.isPlayerTwoRising = true;
-                this.handTwoCurrentY = this.handTwoInitialY;
-                this.animationFrame = requestAnimationFrame(this.animateRetreat);
+				this.playerOne.startAnimation("retreat");
             }
         }
         if (this.isButtonClicked(x, y, this.playerOneAttackButton)) {
             console.log("Clicked on player one attack");
-            if (!this.isPlayerOneAnimating) {
-                this.isPlayerOneAnimating = true;
-                this.isPlayerOneRising = true;
-                this.handCurrentY = this.handInitialY;
-                this.animationFrame = requestAnimationFrame(this.animateAttack);
+            if (!this.playerTwo.isPlayerAnimating) {
+				this.playerTwo.startAnimation("attack");
             }
         }
     }
@@ -278,21 +126,9 @@ class game {
 	getCanvas() {
 		return this.canvas;
 	}
-	resizeCanvas() {
-		this.gameCanvas.setWidth(window.innerWidth);
-		this.gameCanvas.setHeight(window.innerHeight);
-		this.drawAll();
-	}
-
-	draawline(context, x, y, canvasWidth, canvasHeight) {
-		context.beginPath();
-		context.moveTo(x, y);
-		context.lineTo(x, canvasHeight);
-		context.strokeStyle = "black";
-		context.lineWidth = 2;
-		context.stroke();
-	}
-
 }
 
 export default game;
+
+
+
