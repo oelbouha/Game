@@ -30,8 +30,8 @@ class game {
 		this.topButton = this.topRetreatButton;
 		this.bottomButton = this.bottomAttackButton;
 
-		this.topColor = "#FFA500";
-		this.bottomColor = "#317BBF";
+		this.topBackgroundColor = "#FFA500";
+		this.bottomBackgroundColor = "#317AB3";
 
 		this.waitForImagesToLoad();
 	}
@@ -80,10 +80,10 @@ class game {
 		let bottomhalf = canvasHeight / 2 + margin;
 	
 
-		this.context.fillStyle = this.topColor;
+		this.context.fillStyle = this.topBackgroundColor;
 		this.context.fillRect(0, 0, canvasWidth, tophalf);
 	
-		this.context.fillStyle = this.bottomColor;
+		this.context.fillStyle = this.bottomBackgroundColor;
 		this.context.fillRect(0, canvasHeight / 2, canvasWidth, bottomhalf);
 	}
 
@@ -128,9 +128,9 @@ class game {
 	}
 
 	switchColors() {
-		let temp = this.topColor;
-		this.topColor = this.bottomColor;
-		this.bottomColor = temp;
+		let temp = this.topBackgroundColor;
+		this.topBackgroundColor = this.bottomBackgroundColor;
+		this.bottomBackgroundColor = temp;
 	}
 
 	handleCanvasClick(event) {
