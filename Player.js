@@ -2,12 +2,14 @@ import Hand from "./Hand.js";
 
 
 class Player {
-	constructor(position, state, canvasHeight, PlayerHandImage, handSize) {
-		this.state = state;
+	constructor(position, initialRole, canvasHeight, PlayerHandImage, handSize) {
+		this.isMissed = false;
+		this.counter = 0;
+		this.state = initialRole;
 		this.hand = new Hand(position, canvasHeight, PlayerHandImage);
 		this.position = position;
 		this.isPlayerPaused = false;
-		
+
 		this.handWidth = handSize.width;
 		this.handHeight = handSize.height;
 
@@ -15,46 +17,35 @@ class Player {
 		this.isPlayerRising = true;
 		this.isPlayerFalling = true;
 
-		
-		this.pauseDuration = 1000;
-		this.animationSpeed = 50;
+		this.pauseDuration = 200;
+		this.animationSpeed = 100;
 		this.animationFrame = null;
 		
 		this.maxAttackHeight = canvasHeight - 883 + 40;
 		this.maxRetreatHeight = -700;
-		
-		// this.animateRetreat = this.animateRetreat.bind(this);
-		// this.animateAttack = this.animateAttack.bind(this);
-		
+
 		this.hnadInitialY = this.hand.getInitialY();
 		this.handCurrentY = this.hnadInitialY;
-		
-		// console.log("Player position: ", this.position);
-		// console.log("Player state: ", this.state);
-
 	}
 
 	startAnimation(type) {
-		console.log("startAnimation ... function called ...");
 		this.isPlayerAnimating = true;
-		if (type === "attack") {
-
-			console.log("startAnimation attack ...");
-			
+		if (type === "attack")
 			this.animateAttack();
-		}
-		else if (type === "retreat") {
+		else if (type === "retreat")
 			this.animateRetreat();
-		}
 	}
 
+	isHitTheOpponent() {
+		return false;
+	}
 	update() {
 		if (this.isPlayerAnimating) {
-			if (this.animationType === "attack") {
+	
+			if (this.animationType === "attack")
 				this.animateAttack();
-			} else if (this.animationType === "retreat") {
+			else if (this.animationType === "retreat")
 				this.animateRetreat();
-			}
 		}
 	}
 
@@ -74,21 +65,15 @@ class Player {
 			return;
 		}
 
-		if (this.position == "top") {
-			console.log("animateTopAttack ...");
+		if (this.position == "top")
 			this.animateTopAttack();
-		}
-		else {
-			console.log("animateButtomAttack ... function called ...");
+		else
 			this.animateButtomAttack();
-		}
 
 		this.update();
 
-		if (this.isPlayerAnimating) {
+		if (this.isPlayerAnimating)
 			this.animationFrame = requestAnimationFrame(() => this.animateAttack());
-		}
-		
 	}
 
 	animateTopAttack() {
@@ -97,6 +82,9 @@ class Player {
             this.handCurrentY += this.animationSpeed;
             if (this.handCurrentY >= this.maxAttackHeight) {
                 this.handCurrentY = this.maxAttackHeight;
+				if (this.isHitTheOpponent()){
+					this.counter += 1;
+				}
                 this.isPlayerFalling = false;
                 this.isPlayerPaused = true;
                 setTimeout(() => {
@@ -121,6 +109,14 @@ class Player {
             this.handCurrentY -= this.animationSpeed;
             if (this.handCurrentY <= this.maxAttackHeight) {
 				this.handCurrentY = this.maxAttackHeight;
+				if (this.isHitTheOpponent()){
+					this.counter += 1;
+				}
+				else {
+					console.log("missed the attack");
+					this.isMissed = true;
+					console.log("missed the attack   | " + this.isMissed);
+				}
                 this.isPlayerRising = false;
                 this.isPlayerPaused = true;
                 setTimeout(() => {
@@ -154,19 +150,17 @@ class Player {
 			return;
 		}
 
-		if (this.position == "top") {
+		if (this.position == "top")
 			this.animateTopRetreat();
-		}
-		else {
+		else
 			this.animateButtomRetreat();
-		}
-		
+
 		this.update();
 		
-		if (this.isPlayerAnimating) {
+		if (this.isPlayerAnimating)
 			this.animationFrame = requestAnimationFrame(() => this.animateRetreat());
-		}
 	}
+
 	animateTopRetreat() {
 		if (this.isPlayerRising) {
 			this.handCurrentY -= this.animationSpeed;

@@ -5,9 +5,8 @@ class Hand {
 		this.state = state;
 		this.initialY = -883 / 2;
 		
-		if (state === "buttom") {
+		if (state === "buttom")
 			this.initialY = canvasHeight - 883 / 2;
-		}
 		this.currentY = this.initialY;
 	}
 
