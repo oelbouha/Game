@@ -29,15 +29,15 @@ class game {
 		this.playerTwoAttackButton = new CustomImage("./assets/attack-blue.png");
 		
 		this.handleCanvasClick = this.handleCanvasClick.bind(this);
+		this.handleKeyPress = this.handleKeyPress.bind(this);
 
     	this.canvas.addEventListener("click", this.handleCanvasClick);
 		this.canvas.addEventListener("keydown", this.handleKeyPress);
 
-		this.handleKeyPress = this.handleKeyPress.bind(this);
 
 
-		this.topButton = this.topRetreatButton;
-		this.bottomButton = this.bottomAttackButton;
+		this.topButton = this.topAttackButton;
+		this.bottomButton = this.bottomRetreatButton;
 
 		this.topBackgroundColor = "#FFA500";
 		this.bottomBackgroundColor = "#317AB3";
@@ -64,8 +64,11 @@ class game {
 	}
 	
 	startGame() {
-		this.playerOne = new Player("top", "retreat", this.gameCanvas.getHeight(), this.playerTwoHand, this.playerOneHand);
-		this.playerTwo = new Player("buttom", "attack", this.gameCanvas.getHeight(), this.playerOneHand, this.playerTwoHand);
+		this.playerOne = new Player("top", "attack", this.gameCanvas.getHeight(), this.playerTwoHand, this.playerOneHand);
+		this.playerTwo = new Player("buttom", "retreat", this.gameCanvas.getHeight(), this.playerOneHand, this.playerTwoHand);
+
+		this.playerOne.setOpponent(this.playerTwo);
+		this.playerTwo.setOpponent(this.playerOne);
 
 		// console.log(this.playerOne);
 		// console.log(this.playerTwo);
@@ -119,7 +122,7 @@ class game {
 		
 		if (this.playerOne.state === "attack") {
 			this.playerOneHand.draw(this.context, playerOneHandX, playerOneHandY);
-			this.playerTwoHand.draw(this.context, playerTwoHandX, playerOneHandY);
+			this.playerTwoHand.draw(this.context, playerTwoHandX, playerTwoHandY);
 		}
 		else {
 			this.playerTwoHand.draw(this.context, playerTwoHandX, playerTwoHandY);
@@ -151,10 +154,54 @@ class game {
 	}
 
 	handleKeyPress(event) {
-		console.log(event);
+		// console.log(event);
 
+		// for player one
+		if (event.key === "s") {
+			if (this.playerOne.getState() == "attack") {
+				this.playerOne.startAnimation("attack");
+
+				if (this.playerOne.isMissed) {
+					this.playerTwo.state = "attack";
+					this.playerOne.state = "retreat";
+					this.topButton = this.topRetreatButton;
+					this.bottomButton = this.bottomAttackButton;
+					this.switchColors();
+					this.playerOne.isMissed = false;
+					this.playerTwo.isMissed = false;
+					this.gameLoop();
+				}
+			}
+		}
+		if (event.key === "w") {
+			if (this.playerOne.getState() == "retreat") {
+				this.playerOne.startAnimation("retreat");
+			}
+		}
+
+		// for player two
 		if (event.key === "ArrowUp") {
-			console.log("Arrow Up pressed");
+			if (this.playerTwo.getState() == "attack") {
+				this.playerTwo.startAnimation("attack");
+				// console.log("Player 2 attacked the opponent     ...");
+				// console.log("Player 2 missed the attack     ...", this.playerOne.isMissed);
+				if (this.playerTwo.isMissed) {
+					// console.log("Player 2 missed the attack     ...");
+					this.playerOne.state = "attack";
+					this.playerTwo.state = "retreat";
+					this.bottomButton = this.bottomRetreatButton;
+					this.topButton = this.topAttackButton;
+					this.switchColors();
+					this.playerOne.isMissed = false;
+					this.playerTwo.isMissed = false;
+					this.gameLoop();
+				}
+			}
+		}
+		if (event.key === "ArrowDown") {
+			if (this.playerTwo.getState() == "retreat") {
+				this.playerTwo.startAnimation("retreat");
+			}
 		}
 	}
 
@@ -168,17 +215,42 @@ class game {
 				let state = this.playerOne.state;
 				this.playerOne.startAnimation(state);
             }
+			if (this.playerOne.state === "attack") {
+				
+				// console.log("Player 1 attacked the opponent     ...");
+				console.log("Player 1 missed the attack     ...", this.playerOne.isMissed);
+
+				if (this.playerOne.isMissed) {
+					this.playerTwo.state = "attack";
+					this.playerOne.state = "retreat";
+					this.topButton = this.topRetreatButton;
+					this.bottomButton = this.bottomAttackButton;
+					this.switchColors();
+					this.playerOne.isMissed = false;
+					this.playerTwo.isMissed = false;
+					this.gameLoop();
+				}
+			}
         }
         if (this.isButtonClicked(x, y, this.bottomButton)) {
             if (!this.playerTwo.isPlayerAnimating) {
 				let state = this.playerTwo.state;
 				this.playerTwo.startAnimation(state);
             }
-			if (this.playerTwo.isMissed) {
-				// console.log("Player 2 missed the attack     ...");
-				// this.gameManager.update(this.playerTwo);
-				// this.bottomButton = this.bottomRetreatButton;
-				// this.switchColors();
+			if (this.playerTwo.state === "attack") {
+				console.log("Player 2 attacked the opponent     ...");
+				console.log("Player 2 missed the attack     ...", this.playerOne.isMissed);
+				if (this.playerTwo.isMissed) {
+					console.log("Player 2 missed the attack     ...");
+					this.playerOne.state = "attack";
+					this.playerTwo.state = "retreat";
+					this.bottomButton = this.bottomRetreatButton;
+					this.topButton = this.topAttackButton;
+					this.switchColors();
+					this.playerOne.isMissed = false;
+					this.playerTwo.isMissed = false;
+					this.gameLoop();
+				}
 			}
         }
     }

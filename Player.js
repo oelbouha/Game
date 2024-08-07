@@ -2,6 +2,7 @@ import Hand from "./Hand.js";
 
 class Player {
 	constructor(position, initialRole, canvasHeight, PlayerHandImage, handSize) {
+		this.opponent = null;
 		this.isMissed = false;
 		this.counter = 0;
 		this.state = initialRole;
@@ -30,6 +31,9 @@ class Player {
 		this.handCurrentY = this.hnadInitialY;
 	}
 
+	setOpponent(opponent) {
+		this.opponent = opponent;
+	}
 	startAnimation(type) {
 		this.isPlayerAnimating = true;
 		if (type === "attack")
@@ -39,6 +43,45 @@ class Player {
 	}
 
 	isHitTheOpponent() {
+		
+		if (this.position === "buttom") {
+			console.log("buttom Player attacking ...");
+			
+			let opponentHandY = this.opponent.handCurrentY + this.opponent.handWidth - 40;
+			let playerHandY = this.handCurrentY;
+			
+			// console.log("opponent hand Y   |   " + opponentHandY);
+			// console.log("player hand Y   |   " + playerHandY);
+			
+			if (this.opponent.isPlayerAnimating) {
+				// console.log("opponent is animating ...");
+				opponentHandY = this.opponent.handCurrentY + this.handHeight - 40;
+				// console.log("opponent hand Y   |   ", opponentHandY);
+			}
+			if (this.handCurrentY <= opponentHandY ) {
+				console.log("hit the opponent  ...");
+				
+				return true;
+			}
+		}
+		else if (this.position === "top") {
+			console.log("top Player attacking ...");
+
+			let opponentHandY = this.opponent.handCurrentY;
+			let playerHandY = this.handCurrentY + this.handHeight;
+
+			if (this.opponent.isPlayerAnimating) {
+				opponentHandY = this.opponent.handCurrentY;
+			}
+			// console.log("opponent hand Y   |   " + opponentHandY);
+			// console.log("player hand Y   |   " + playerHandY);
+
+			if (playerHandY >= opponentHandY) {
+				console.log("hit the opponent  ...");
+				return true;
+			}
+			return false;
+		}
 		return false;
 	}
 	update() {
@@ -86,6 +129,11 @@ class Player {
                 this.handCurrentY = this.maxTopAttackHeight;
 				if (this.isHitTheOpponent()){
 					this.counter += 1;
+					// this.isMissed = false;
+				}
+				else {
+					this.isMissed = true;
+					// console.log("missed the attack ...", this.isMissed);
 				}
                 this.isPlayerFalling = false;
                 this.isPlayerPaused = true;
@@ -111,15 +159,16 @@ class Player {
             this.handCurrentY -= this.animationSpeed;
             if (this.handCurrentY <= this.maxAttackHeight) {
 				this.handCurrentY = this.maxAttackHeight;
+	
 				if (this.isHitTheOpponent()){
+					// this.isMissed = false;
 					this.counter += 1;
 				}
 				else {
-					console.log("missed the attack");
 					this.isMissed = true;
-					console.log("missed the attack   | " + this.isMissed);
 				}
-                this.isPlayerRising = false;
+    
+				this.isPlayerRising = false;
                 this.isPlayerPaused = true;
                 setTimeout(() => {
                     this.isPlayerPaused = false;
@@ -128,7 +177,6 @@ class Player {
                 return;
             }
         } else {
-			console.log("player is falling ...");
             // Falling
             this.handCurrentY += this.animationSpeed;
             if (this.handCurrentY >= this.hand.getInitialY()) {
@@ -189,15 +237,15 @@ class Player {
 	}
 	
 	animateButtomRetreat() {
-		console.log("animating retreat ...");
+		// console.log("animating retreat ...");
 		if (this.isPlayerFalling) {
-			console.log("this current Y   |   " + this.handCurrentY);
-			console.log("this max retreat   |   " + this.maxRetreatButtomHeight);
+			// console.log("this current Y   |   " + this.handCurrentY);
+			// console.log("this max retreat   |   " + this.maxRetreatButtomHeight);
 			this.handCurrentY += this.animationSpeed;
 			if (this.handCurrentY >= this.maxRetreatButtomHeight) {
 
 				this.handCurrentY = this.hand.getInitialY() + this.maxRetreatButtomHeight;
-				console.log("after update   |   " + this.handCurrentY);
+				// console.log("after update   |   " + this.handCurrentY);
 				this.isPlayerFalling = false;
 				this.isPlayerPaused = true;
 				setTimeout(() => {
@@ -230,4 +278,4 @@ class Player {
 	}
 }
 
-export default Player;
+export default Player; 
