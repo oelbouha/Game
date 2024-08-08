@@ -4,7 +4,7 @@ class Player {
 	constructor(position, initialRole, canvasHeight, PlayerHandImage, handSize) {
 		this.opponent = null;
 		this.isMissed = false;
-		this.counter = 0;
+		this.score = 0;
 		this.state = initialRole;
 		this.hand = new Hand(position, canvasHeight, PlayerHandImage);
 		this.position = position;
@@ -34,6 +34,7 @@ class Player {
 	setOpponent(opponent) {
 		this.opponent = opponent;
 	}
+
 	startAnimation(type) {
 		this.isPlayerAnimating = true;
 		if (type === "attack")
@@ -43,11 +44,11 @@ class Player {
 	}
 
 	isHitTheOpponent() {
-		
+		this.isMissed = false;
 		if (this.position === "buttom") {
 			console.log("buttom Player attacking ...");
 			
-			let opponentHandY = this.opponent.handCurrentY + this.opponent.handWidth - 40;
+			let opponentHandY = this.opponent.handCurrentY + this.opponent.handHeight - 40;
 			let playerHandY = this.handCurrentY;
 			
 			// console.log("opponent hand Y   |   " + opponentHandY);
@@ -58,9 +59,10 @@ class Player {
 				opponentHandY = this.opponent.handCurrentY + this.handHeight - 40;
 				// console.log("opponent hand Y   |   ", opponentHandY);
 			}
-			if (this.handCurrentY <= opponentHandY ) {
-				console.log("hit the opponent  ...");
-				
+			// console.log("opponent hand Y   |   ", opponentHandY);
+			// console.log("player hand Y   |   ", playerHandY);
+			if (playerHandY <= opponentHandY ) {
+				console.log(" buttom player hit the opponent  ...");
 				return true;
 			}
 		}
@@ -99,6 +101,20 @@ class Player {
 		cancelAnimationFrame(this.animationFrame);
 	}
 	
+	switchRoles() {
+		if (this.position === "top") {
+			this.state = "retreat";
+			this.opponent.state = "attack";
+			this.score = 0;
+		}
+		else {
+			this.opponent.state = "attack";
+			this.state = "retreat";
+			this.score = 0;
+		}
+		this.isMissed = false;
+	}
+
 	animateAttack() {
 		if (!this.isPlayerAnimating) {
 			cancelAnimationFrame(this.animationFrame);
@@ -117,8 +133,16 @@ class Player {
 
 		this.update();
 
+
 		if (this.isPlayerAnimating)
 			this.animationFrame = requestAnimationFrame(() => this.animateAttack());
+		if (this.isPlayerAnimating == false && this.isMissed)
+			this.switchRoles();
+		if (this.score >= 10) {
+			// win the game
+			// rematch
+		}
+		
 	}
 
 	animateTopAttack() {
@@ -128,12 +152,12 @@ class Player {
             if (this.handCurrentY >= this.maxTopAttackHeight) {
                 this.handCurrentY = this.maxTopAttackHeight;
 				if (this.isHitTheOpponent()){
-					this.counter += 1;
-					// this.isMissed = false;
+					this.score += 1;
+					this.isMissed = false;
 				}
 				else {
 					this.isMissed = true;
-					// console.log("missed the attack ...", this.isMissed);
+					console.log("missed the attack ...", this.isMissed);
 				}
                 this.isPlayerFalling = false;
                 this.isPlayerPaused = true;
@@ -161,11 +185,11 @@ class Player {
 				this.handCurrentY = this.maxAttackHeight;
 	
 				if (this.isHitTheOpponent()){
-					// this.isMissed = false;
-					this.counter += 1;
+					this.score += 1;
 				}
 				else {
 					this.isMissed = true;
+					console.log("buttom missed the attack ...", this.isMissed);
 				}
     
 				this.isPlayerRising = false;

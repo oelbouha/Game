@@ -6,7 +6,7 @@ class GameManager {
 		this.PlayerOne = PlayerOne;
 		this.PlayerTwo = PlayerTwo;
 	}
-	update(player) {
+	static update(playerOne, playerTwo) {
 		this.player = player;
 		this.player.state = "retreat";
 	}
