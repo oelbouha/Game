@@ -6,7 +6,6 @@ import GameManager from './GameManager.js';
 
 class game {
 	constructor() {
-		this.gameManager = new GameManager();
 		this.gameCanvas = new game_Canvas();
 		this.context = this.gameCanvas.getContext();
 		this.canvas = this.gameCanvas.getCanvas();
@@ -172,14 +171,22 @@ class game {
 
 	handleKeyPress(event) {
 		// for player one
-		if (event.key === "s" || event.key === "w") {
+		if (event.key === "s") {
 			if (this.playerOne.getState() == "attack")
 				this.playerOne.startAnimation("attack");
 		}
+		if (event.key === "w") {
+			if (this.playerOne.getState() == "retreat")
+				this.playerOne.startAnimation("retreat");
+		}
 		// for player two
-		if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+		if (event.key === "ArrowUp") {
 			if (this.playerTwo.getState() == "attack")
 				this.playerTwo.startAnimation("attack");
+		}
+		if (event.key === "ArrowDown") {
+			if (this.playerTwo.getState() == "retreat")
+				this.playerTwo.startAnimation("retreat");
 		}
 	}
 
