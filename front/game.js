@@ -13,16 +13,21 @@ class game {
 		this.canvas.tabIndex = 0;
 		this.canvas.focus();
 
-		
+		this.winImage = new CustomImage("./assets/winner.png");
+		this.loseImage = new CustomImage("./assets/loser.png");
+
+		this.effectImage = new CustomImage("./assets/slap-effect.png");
 		this.playerOneHand = new CustomImage("./assets/hand.png");
 		this.playerTwoHand = new CustomImage("./assets/player-two-hand.png");
 
-		this.topAttackButton = new CustomImage("./assets/top-attack.png");
+		this.topAttackButton = new CustomImage("./assets/topattack.png");
 		this.bottomAttackButton = new CustomImage("./assets/attack-green.png");
 		
 		this.topRetreatButton = new CustomImage("./assets/attack-blue.png");
 		this.bottomRetreatButton = new CustomImage("./assets/buttom-retreat.png");
 
+		this.topRematchButton = new CustomImage("./assets/top-attack.png");
+		this.bottomRematchButton = new CustomImage("./assets/buttom-rematch.png");
 
 		this.playerOneAttackButton = new CustomImage("./assets/attack-green.png");
 		this.playerTwoAttackButton = new CustomImage("./assets/attack-blue.png");
@@ -37,8 +42,8 @@ class game {
 		this.retreatColor = "#317AB3";
 
 
-		this.topButton = this.topAttackButton;
-		this.bottomButton = this.bottomRetreatButton;
+		this.topButton = this.topRetreatButton;
+		this.bottomButton = this.bottomAttackButton;
 
 		this.topBackgroundColor = "#FFA500";
 		this.bottomBackgroundColor = "#317AB3";
@@ -64,9 +69,44 @@ class game {
 		});
 	}
 	
+	animateHands() {
+		// this.playerOne.animate();
+		// this.playerTwo.animate();
+	}
+
+	reset() {
+		this.clearCanvas();
+		console.log("resetting the game");
+		if (this.playerTwo.win) {
+			this.playerOne.state = "attack";
+			this.playerTwo.state = "retreat";
+			this.topBackgroundColor = this.attackColor;
+			this.bottomBackgroundColor = this.retreatColor;
+			this.topButton = this.topAttackButton;
+			this.bottomButton = this.bottomRetreatButton;
+		}
+		else {
+			this.playerOne.state = "retreat";
+			this.playerTwo.state = "attack";
+			this.topBackgroundColor = this.retreatColor;
+			this.bottomBackgroundColor = this.attackColor;
+			this.topButton = this.topRetreatButton;
+			this.bottomButton = this.bottomAttackButton;
+		}
+		this.playerOne.score = 0;
+		this.playerTwo.score = 0;
+		this.playerOne.win = false;
+		this.playerTwo.win = false;
+		this.playerOne.isPlayerAnimating = false;
+		this.playerTwo.isPlayerAnimating = false;
+		this.playerOne.isPlayerFalling = true;
+		this.playerOne.isPlayerRising = true;
+		this.playerTwo.isPlayerFalling = true;
+		this.playerTwo.isPlayerRising = true;
+	}
 	startGame() {
-		this.playerOne = new Player("top", "attack", this.gameCanvas.getHeight(), this.playerTwoHand, this.playerOneHand);
-		this.playerTwo = new Player("buttom", "retreat", this.gameCanvas.getHeight(), this.playerOneHand, this.playerTwoHand);
+		this.playerOne = new Player("top", "retreat", this.gameCanvas.getHeight(), this.playerTwoHand, this.playerOneHand, this.context);
+		this.playerTwo = new Player("buttom", "attack", this.gameCanvas.getHeight(), this.playerOneHand, this.playerTwoHand, this.context);
 
 		this.playerOne.setOpponent(this.playerTwo);
 		this.playerTwo.setOpponent(this.playerOne);
@@ -106,11 +146,11 @@ class game {
 		let canvasWidth = this.gameCanvas.getWidth();
 		let canvasHeight = this.gameCanvas.getHeight();
 		
-		let buttonX = this.gameCanvas.getCenterX(this.bottomButton.width);
+		let buttonX = this.gameCanvas.getCenterX(this.topButton.width);
 		let buttonY = -20;
 		this.topButton.draw(this.context, buttonX, buttonY);
 		
-		buttonX = this.gameCanvas.getCenterX(this.topButton.width);
+		buttonX = this.gameCanvas.getCenterX(this.bottomButton.width);
 		buttonY = canvasHeight - 110;
 		this.bottomButton.draw(this.context, buttonX, buttonY);
 	}
@@ -130,12 +170,26 @@ class game {
 			this.playerTwoHand.draw(this.context, playerTwoHandX, playerTwoHandY);
 			this.playerOneHand.draw(this.context, playerOneHandX, playerOneHandY);
 		}
+		// this.effectImage.draw(this.context, this.gameCanvas.getCenterX(this.effectImage.width), this.gameCanvas.getCenterY(this.effectImage.height));
 	}
 
 	clearCanvas() {
 		let canvasWidth = this.gameCanvas.getWidth();
 		let canvasHeight = this.gameCanvas.getHeight();
 		this.context.clearRect(0, 0, canvasWidth, canvasHeight);
+	}
+	drawWinner() {
+		let winnerY = this.gameCanvas.getHeight() - this.playerOne.handHeight / 2;
+		let loserY = this.playerOne.handHeight / 2 - this.winImage.height;
+		if (this.playerOne.win) {
+			winnerY = this.playerOne.handHeight / 2 - this.winImage.height;
+			loserY = this.gameCanvas.getHeight() - this.playerOne.handHeight / 2;
+		}
+		this.winImage.draw(this.context, this.gameCanvas.getCenterX(this.winImage.width), winnerY);
+		this.loseImage.draw(this.context, this.gameCanvas.getCenterX(this.loseImage.width), loserY);
+		
+		this.topButton = this.topRematchButton;
+		this.bottomButton = this.bottomRematchButton;
 	}
 
 	drawAll() {
@@ -155,10 +209,13 @@ class game {
 		}
 
 		this.drawBackground();
-		
+
 		this.drawScore();
 
-		this.drawHands();
+		if (this.playerOne.win || this.playerTwo.win)
+			this.drawWinner();
+		else
+			this.drawHands();
 	
 		this.drawButtons();
 	}
@@ -196,10 +253,19 @@ class game {
 		let y = event.pageY - rect.top;
 
         if (this.isButtonClicked(x, y, this.topButton)) {
+			console.log("top button clicked");
+			if (this.playerOne.win || this.playerTwo.win) {
+				this.reset();
+				return ;
+			}
 			if (!this.playerOne.isPlayerAnimating) 
-				this.playerOne.startAnimation(this.playerOne.state);
-        }
-        if (this.isButtonClicked(x, y, this.bottomButton)) {
+			this.playerOne.startAnimation(this.playerOne.state);
+		}
+		if (this.isButtonClicked(x, y, this.bottomButton)) {
+			if (this.playerOne.win || this.playerTwo.win) {
+				this.reset();
+				return ;
+			}
             if (!this.playerTwo.isPlayerAnimating)
 				this.playerTwo.startAnimation(this.playerTwo.state);
         }
