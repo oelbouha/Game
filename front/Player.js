@@ -5,6 +5,7 @@ class Player {
 	constructor(position, initialRole, canvasHeight, PlayerHandImage, handSize, context) {
 		this.context = context;
 		this.maxScore = 5;
+		this.harmLevel = 6;
 		this.win = false;
 		this.opponent = null;
 		this.isMissed = false;
@@ -12,6 +13,8 @@ class Player {
 		this.state = initialRole;
 		this.hand = new Hand(position, canvasHeight, PlayerHandImage);
 		this.slapEffectImage = new CustomImage("./assets/slap-effect.png");
+		this.slapEffectImage1 = new CustomImage("./assets/slap.png");
+		this.harmImage = new CustomImage("./assets/harm.png");
 		this.position = position;
 		this.isPlayerPaused = false;
 
@@ -166,6 +169,7 @@ class Player {
 					this.score += 1;
 
 					this.slapEffectImage.draw(this.context, 1200 / 2 - this.slapEffectImage.width / 2, this.opponent.handCurrentY);
+					this.slapEffectImage1.draw(this.context, 1200 / 2 - this.slapEffectImage1.width / 2, this.opponent.handCurrentY);
 				}
 				else {
 					this.isMissed = true;
@@ -200,6 +204,9 @@ class Player {
 				{
 					this.score += 1;
 					this.slapEffectImage.draw(this.context, 1200 / 2 - this.slapEffectImage.width / 2, this.handCurrentY );
+					this.slapEffectImage1.draw(this.context, 1200 / 2 - this.slapEffectImage1.width / 2, this.opponent.handCurrentY);
+					if (this.score >= this.harmLevel)
+						this.harmImage.draw(this.context, 1200 / 2 - this.harmImage.width / 2, this.opponent.handCurrentY);
 				}
 				else 
 					this.isMissed = true;

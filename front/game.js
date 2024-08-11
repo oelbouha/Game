@@ -218,6 +218,11 @@ class game {
 			this.drawHands();
 	
 		this.drawButtons();
+		
+		// if (this.playerOne.score >= 3)
+		// 	this.playerOne.harmImage.draw(this.context, this.gameCanvas.getCenterX(this.playerOne.harmImage.width), this.playerTwo.handCurrentY);
+		// if (this.playerTwo.score >= 3)
+		// 	this.playerTwo.harmImage.draw(this.context, this.gameCanvas.getCenterX(this.playerTwo.harmImage.width), this.playerOne.handCurrentY);
 	}
 
 	switchColors() {
