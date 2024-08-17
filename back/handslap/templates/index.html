@@ -1,0 +1,18 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Slap Extream</title>
+	<link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+	<div id="canvasContainer">
+		<canvas width="1200" height="1000" id="gameCanvas"></canvas>
+	</div>
+	<script>
+		var STATIC_URL = "{% static '' %}";
+	</script>
+	<script type="module" src="{% static 'main.js' %}"></script>
+</body>
+</html>
