@@ -13,3 +13,4 @@ def game(request):
 urlpatterns = [
 	path('', game)
 ]
+

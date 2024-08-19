@@ -17,9 +17,10 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path, include, re_path
+from django.urls import path, include
 
 urlpatterns = [
-	path('game', include('handslap.urls')),
-	re_path(r'^ws/', include('handslap.routing')),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+	path('', include('handslap.urls')),
+]
+
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

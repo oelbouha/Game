@@ -6,6 +6,7 @@ import GameManager from './GameManager.js';
 
 class game {
 	constructor() {
+		this.socket = new WebSocket('ws://127.0.0.1:8000/ws/game/');
 		this.gameCanvas = new game_Canvas();
 		this.context = this.gameCanvas.getContext();
 		this.canvas = this.gameCanvas.getCanvas();
@@ -49,8 +50,41 @@ class game {
 		this.bottomBackgroundColor = "#317AB3";
 
 		this.waitForImagesToLoad();
+		this.connectWebSocket();
 	}
+
+	connectWebSocket() {
+		this.socket.onopen = (e) => {
+			console.log("Connected to server");
+			// Now it's safe to send messages
+			this.sendMessage("Hello, server!");
+		};
 	
+		this.socket.onmessage = (event) => {
+			console.log("Message from server:", event.data);
+		};
+	
+		this.socket.onerror = (error) => {
+			console.log("WebSocket Error: ", error);
+		};
+	
+		this.socket.onclose = (event) => {
+			if (event.wasClean) {
+				console.log(`Connection closed cleanly, code=${event.code}, reason=${event.reason}`);
+			} else {
+				console.log('Connection died');
+			}
+		};
+	}	
+	
+	sendMessage(message) {
+		if (this.socket.readyState === WebSocket.OPEN) {
+			this.socket.send(JSON.stringify({message: message}));
+		} else {
+			console.log("WebSocket is not open. Message not sent.");
+		}
+	}
+
 	waitForImagesToLoad() {
 		let images = [this.playerTwoHand, this.topButton, this.bottomButton, this.playerOneHand];
 		let loadedImages = 0;
@@ -264,15 +298,21 @@ class game {
 				return ;
 			}
 			if (!this.playerOne.isPlayerAnimating) 
-			this.playerOne.startAnimation(this.playerOne.state);
+			{
+				this.playerOne.startAnimation(this.playerOne.state);
+				this.sendMessage({action: this.playerOne.state, player: "playerOne", playerPosition: this.playerOne.position});
+			}
+			
 		}
 		if (this.isButtonClicked(x, y, this.bottomButton)) {
 			if (this.playerOne.win || this.playerTwo.win) {
 				this.reset();
 				return ;
 			}
-            if (!this.playerTwo.isPlayerAnimating)
+            if (!this.playerTwo.isPlayerAnimating) {
 				this.playerTwo.startAnimation(this.playerTwo.state);
+				this.sendMessage({action: this.playerTwo.state, player: "playerTwo", playerPosition: this.playerTwo.position});
+			}
         }
     }
 	drawScore() {
