@@ -44,7 +44,7 @@ class Player {
 	}
 
 	startAnimation(type) {
-		// console.log("start animation ...");
+		console.log("start animation ...");
 		if (this.score >= this.maxScore) {
 			this.stopAnimation();
 			this.win = true;

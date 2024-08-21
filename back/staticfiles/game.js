@@ -49,6 +49,9 @@ class game {
 		this.topBackgroundColor = "#FFA500";
 		this.bottomBackgroundColor = "#317AB3";
 
+		this.playerOne = new Player("top", "retreat", this.gameCanvas.getHeight(), this.playerTwoHand, this.playerOneHand, this.context);
+		this.playerTwo = new Player("buttom", "attack", this.gameCanvas.getHeight(), this.playerOneHand, this.playerTwoHand, this.context);
+
 		this.waitForImagesToLoad();
 		this.connectWebSocket();
 	}
@@ -61,7 +64,12 @@ class game {
 		};
 	
 		this.socket.onmessage = (event) => {
-			console.log("Message from server:", event.data);
+			const data = JSON.parse(event.data);
+			// console.log(data);
+			const message = data.message;
+
+			console.log("Received message from server: ", message);
+			this.handleServerMessage(message);
 		};
 	
 		this.socket.onerror = (error) => {
@@ -77,6 +85,29 @@ class game {
 		};
 	}	
 	
+	handleServerMessage(data) {
+		console.log ("Handling server message");
+
+		const action = data.action;
+		const player = data.player;
+
+
+		if (action == "attack") {
+			if (player == "playerOne")
+				this.playerOne.startAnimation("attack");
+			else
+				this.playerTwo.startAnimation("attack");
+		}
+		if (action == "retreat" ) {
+			if (player == "playerOne")
+				this.playerOne.startAnimation("retreat");
+			else
+				this.playerTwo.startAnimation("retreat");
+		}
+		if (action == "reset")
+			this.reset();
+	}
+
 	sendMessage(message) {
 		if (this.socket.readyState === WebSocket.OPEN) {
 			this.socket.send(JSON.stringify({message: message}));
@@ -139,8 +170,7 @@ class game {
 		this.playerTwo.isPlayerRising = true;
 	}
 	startGame() {
-		this.playerOne = new Player("top", "retreat", this.gameCanvas.getHeight(), this.playerTwoHand, this.playerOneHand, this.context);
-		this.playerTwo = new Player("buttom", "attack", this.gameCanvas.getHeight(), this.playerOneHand, this.playerTwoHand, this.context);
+
 
 		this.playerOne.setOpponent(this.playerTwo);
 		this.playerTwo.setOpponent(this.playerOne);
@@ -269,20 +299,20 @@ class game {
 		// for player one
 		if (event.key === "s") {
 			if (this.playerOne.getState() == "attack")
-				this.playerOne.startAnimation("attack");
+				this.sendMessage({action: this.playerOne.state, player: "playerOne"});
 		}
 		if (event.key === "w") {
 			if (this.playerOne.getState() == "retreat")
-				this.playerOne.startAnimation("retreat");
+				this.sendMessage({action: this.playerOne.state, player: "playerOne"});
 		}
 		// for player two
 		if (event.key === "ArrowUp") {
 			if (this.playerTwo.getState() == "attack")
-				this.playerTwo.startAnimation("attack");
+				this.sendMessage({action: this.playerTwo.state, player: "playerTwo"});
 		}
 		if (event.key === "ArrowDown") {
 			if (this.playerTwo.getState() == "retreat")
-				this.playerTwo.startAnimation("retreat");
+				this.sendMessage({action: this.playerTwo.state, player: "playerTwo"});
 		}
 	}
 
@@ -292,27 +322,21 @@ class game {
 		let y = event.pageY - rect.top;
 
         if (this.isButtonClicked(x, y, this.topButton)) {
-			console.log("top button clicked");
 			if (this.playerOne.win || this.playerTwo.win) {
-				this.reset();
+				this.sendMessage({action: "reset"});
 				return ;
 			}
 			if (!this.playerOne.isPlayerAnimating) 
-			{
-				this.playerOne.startAnimation(this.playerOne.state);
-				this.sendMessage({action: this.playerOne.state, player: "playerOne", playerPosition: this.playerOne.position});
-			}
+				this.sendMessage({action: this.playerOne.state, player: "playerOne"});
 			
 		}
 		if (this.isButtonClicked(x, y, this.bottomButton)) {
 			if (this.playerOne.win || this.playerTwo.win) {
-				this.reset();
+				this.sendMessage({action: "reset"});
 				return ;
 			}
-            if (!this.playerTwo.isPlayerAnimating) {
-				this.playerTwo.startAnimation(this.playerTwo.state);
-				this.sendMessage({action: this.playerTwo.state, player: "playerTwo", playerPosition: this.playerTwo.position});
-			}
+            if (!this.playerTwo.isPlayerAnimating)
+				this.sendMessage({action: this.playerTwo.state, player: "playerTwo"});
         }
     }
 	drawScore() {
