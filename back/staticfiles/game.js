@@ -52,7 +52,7 @@ class game {
 		this.playerOne = new Player("top", "retreat", this.gameCanvas.getHeight(), this.playerTwoHand, this.playerOneHand, this.context);
 		this.playerTwo = new Player("buttom", "attack", this.gameCanvas.getHeight(), this.playerOneHand, this.playerTwoHand, this.context);
 
-		this.waitForImagesToLoad();
+		// this.waitForImagesToLoad();
 		this.connectWebSocket();
 	}
 
@@ -83,8 +83,17 @@ class game {
 				console.log('Connection died');
 			}
 		};
-	}	
-	
+	}
+
+	showLoadingScreen() {
+		this.context.fillStyle = 'black';
+		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+		this.context.fillStyle = 'white';
+		this.context.font = '30px Arial';
+		this.context.textAlign = 'center';
+		this.context.fillText('Loading...', this.canvas.width / 2, this.canvas.height / 2);
+	}
+
 	handleServerMessage(data) {
 		console.log ("Handling server message");
 
