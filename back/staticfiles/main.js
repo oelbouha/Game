@@ -9,17 +9,17 @@ function sleep(ms) {
 async function loadGame() {
     console.log("Starting game load");
     
-    gameInstance.showLoadingScreen();
-    
+    let message = "Loading assets ... 0%";
+    gameInstance.showLoadingScreen(message);
     for (let i = 0; i < 5; i++) {
-        console.log(`Loading assets... ${i * 20}%`);
+        message = `Loading assets ... ${i * 20}%`;
+        gameInstance.showLoadingScreen(message);
         await sleep(1000);
     }
-    
-    console.log("Assets loaded");
+    gameInstance.showLoadingScreen("Loading assets ... 100%");
     await sleep(500);
-    
     gameInstance.startGame();
+    
 }
 
 loadGame();

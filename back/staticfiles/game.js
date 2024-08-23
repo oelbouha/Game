@@ -85,13 +85,13 @@ class game {
 		};
 	}
 
-	showLoadingScreen() {
-		this.context.fillStyle = 'black';
+	showLoadingScreen(message) {
+		this.context.fillStyle = this.attackColor;
 		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 		this.context.fillStyle = 'white';
 		this.context.font = '30px Arial';
 		this.context.textAlign = 'center';
-		this.context.fillText('Loading...', this.canvas.width / 2, this.canvas.height / 2);
+		this.context.fillText(message, this.canvas.width / 2, this.canvas.height / 2);
 	}
 
 	handleServerMessage(data) {
