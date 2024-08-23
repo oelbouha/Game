@@ -9,8 +9,6 @@ class Hand {
 		if (state === "buttom")
 			this.initialY = canvasHeight - 883 / 2;
 		this.currentY = this.initialY;
-
-		console.log("Hand initialY: " + this.initialY);
 	}
 
 	getImage() {

@@ -1,35 +1,5 @@
 import CustomImage from "./image.js";
-
-class Hand {
-	constructor(state, canvasHeight, PlayerHandImage, context) {
-		this.PlayerHandImage = PlayerHandImage;
-		this.state = state;
-		this.initialY = -883 / 2;
-
-		if (state === "buttom")
-			this.initialY = canvasHeight - 883 / 2;
-		this.currentY = this.initialY;
-
-		console.log("Hand initialY: " + this.initialY);
-		// draw horizontal line
-	}
-
-	getImage() {
-		return this.PlayerHandImage;
-	}
-	getcurrentY() {
-		return this.currentY;
-	}
-	getInitialY() {
-		return this.initialY;
-	}
-	setcurrentY(y) {
-		this.currentY = y;
-	}
-	setInitialY(y) {
-		this.initialY = y;
-	}
-}
+import Hand from "./Hand.js";
 
 
 class Player {
@@ -42,7 +12,7 @@ class Player {
 		this.isMissed = false;
 		this.score = 0;
 		this.state = initialRole;
-		this.hand = new Hand(position, canvasHeight, PlayerHandImage, context);
+		this.hand = new Hand(position, canvasHeight, PlayerHandImage);
 		this.slapEffectImage = new CustomImage(STATIC_URL + "/assets/slap-effect.png");
 		this.slapEffectImage1 = new CustomImage(STATIC_URL + "/assets/slap.png");
 		this.harmImage = new CustomImage(STATIC_URL + "/assets/harm.png");
@@ -75,7 +45,6 @@ class Player {
 	}
 
 	startAnimation(type) {
-		console.log("start animation ...");
 		if (this.score >= this.maxScore) {
 			this.stopAnimation();
 			this.win = true;
@@ -89,46 +58,29 @@ class Player {
 	}
 
 	isHitTheOpponent() {
-		console.log("checking if hit the opponent ...");
 		if (this.position === "buttom") {			
 			let opponentHandY = this.opponent.handCurrentY + this.opponent.handHeight - 40;
 			let playerHandY = this.handCurrentY;
 
 			if (this.opponent.isPlayerAnimating)
 				opponentHandY = this.opponent.handCurrentY + this.handHeight - 40;
-			
-			console.log("opponentInialY: ", this.opponent.hand.getInitialY());
-			console.log("opoenent hand height: ", this.opponent.handHeight);	
-			console.log("playerHandY: " + playerHandY + " opponentHandY: " + opponentHandY);
-
 
 			if (playerHandY <= opponentHandY )
 				return true;
 		}
 		else if (this.position === "top") {
-			let opponentHandY = this.opponent.handCurrentY;
+			let opponentHandY = this.opponent.handCurrentY + 40;
+
 			let playerHandY = this.handCurrentY + this.handHeight;
 
 			if (this.opponent.isPlayerAnimating)
-				opponentHandY = this.opponent.handCurrentY;
-			
+				opponentHandY = this.opponent.handCurrentY + 40;
+
 			if (playerHandY >= opponentHandY)
 				return true;
 		}
 		return false;
 	}
-
-
-
-
-
-
-
-
-
-
-
-
 
 	update() {
 		if (this.isPlayerAnimating) {
@@ -204,6 +156,8 @@ class Player {
 		if (this.isPlayerAnimating)
 			this.animationFrame = requestAnimationFrame(() => this.animateAttack());
 		
+		this.update();
+		
 		if (this.isPlayerAnimating == false && this.isMissed)
 			this.switchRoles();
 	}
@@ -253,8 +207,8 @@ class Player {
 					this.score += 1;
 					this.slapEffectImage.draw(this.context, 1200 / 2 - this.slapEffectImage.width / 2, this.handCurrentY );
 					this.slapEffectImage1.draw(this.context, 1200 / 2 - this.slapEffectImage1.width / 2, this.opponent.handCurrentY);
-					if (this.score >= this.harmLevel)
-						this.harmImage.draw(this.context, 1200 / 2 - this.harmImage.width / 2, this.opponent.handCurrentY);
+					// if (this.score >= this.harmLevel)
+					// 	this.harmImage.draw(this.context, 1200 / 2 - this.harmImage.width / 2, this.opponent.handCurrentY);
 				}
 				else 
 					this.isMissed = true;
