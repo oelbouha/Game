@@ -4,6 +4,24 @@ import Player from './Player.js';
 import GameManager from './GameManager.js';
 
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function loadGame(gameInstance) {
+    let message = "Loading game ... 0%";
+    gameInstance.showLoadingScreen(message);
+    for (let i = 0; i < 5; i++) {
+        message = `Loading game ... ${i * 20}%`;
+        gameInstance.showLoadingScreen(message);
+        await sleep(1000);
+    }
+    gameInstance.showLoadingScreen("Loading game ... 100%");
+    await sleep(500);
+    gameInstance.startGame();
+}
+
+
 class game {
 	constructor() {
 		this.socket = new WebSocket('ws://127.0.0.1:8000/ws/game/');
@@ -52,14 +70,12 @@ class game {
 		this.playerOne = new Player("top", "retreat", this.gameCanvas.getHeight(), this.playerTwoHand, this.playerOneHand, this.context);
 		this.playerTwo = new Player("buttom", "attack", this.gameCanvas.getHeight(), this.playerOneHand, this.playerTwoHand, this.context);
 
-		// this.waitForImagesToLoad();
 		this.connectWebSocket();
 	}
 
 	connectWebSocket() {
 		this.socket.onopen = (e) => {
 			console.log("Connected to server");
-			// Now it's safe to send messages
 			this.sendMessage("Hello, server!");
 		};
 	
@@ -68,7 +84,11 @@ class game {
 			// console.log(data);
 			const message = data.message;
 
-			console.log("Received message from server: ", message);
+			if (message === "Start Game") {
+				loadGame(this);
+				return ;
+			}
+			// console.log("Received message from server: ", message);
 			this.handleServerMessage(message);
 		};
 	
@@ -179,20 +199,15 @@ class game {
 		this.playerTwo.isPlayerRising = true;
 	}
 	startGame() {
-
-
 		this.playerOne.setOpponent(this.playerTwo);
 		this.playerTwo.setOpponent(this.playerOne);
 
-		// console.log(this.playerOne);
-		// console.log(this.playerTwo);
 		this.gameLoop();
 	}
 
 	gameLoop() {
 		this.playerOne.update();
 		this.playerTwo.update();
-	
 
 		this.drawAll();
 

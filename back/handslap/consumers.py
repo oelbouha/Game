@@ -1,10 +1,5 @@
-# consumers.py
-
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
-
-# channels and groups
-
 
 
 class GameConsumer(AsyncWebsocketConsumer):
@@ -29,7 +24,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                 self.room_group_name,
                 {
                     'type': 'game_message',
-                    'message': 'Game Start'
+                    'message': 'Start Game'
                 }
             )
             
@@ -76,6 +71,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                 }))
         except:
             print("Error")
+
     async def game_message(self, event):
         message = event['message']
 

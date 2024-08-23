@@ -168,6 +168,7 @@ class Player {
             if (this.handCurrentY >= this.maxTopAttackHeight) {
                 this.handCurrentY = this.maxTopAttackHeight;
 				if (this.isHitTheOpponent()){
+					this.opponent.stopAnimation();
 					this.score += 1;
 
 					this.slapEffectImage.draw(this.context, 1200 / 2 - this.slapEffectImage.width / 2, this.opponent.handCurrentY);
@@ -197,20 +198,22 @@ class Player {
 	animateButtomAttack() {
 		console.log("animating buttom attack ...");
 
-		if (this.isPlayerRising) {
+if (this.isPlayerRising) {
             this.handCurrentY -= this.animationSpeed;
             if (this.handCurrentY <= this.maxButtomAttack) {
 				this.handCurrentY = this.maxButtomAttack;
-	
+
 				if (this.isHitTheOpponent())
 				{
+					this.opponent.stopAnimation();
 					this.score += 1;
+
 					this.slapEffectImage.draw(this.context, 1200 / 2 - this.slapEffectImage.width / 2, this.handCurrentY );
 					this.slapEffectImage1.draw(this.context, 1200 / 2 - this.slapEffectImage1.width / 2, this.opponent.handCurrentY);
 					// if (this.score >= this.harmLevel)
 					// 	this.harmImage.draw(this.context, 1200 / 2 - this.harmImage.width / 2, this.opponent.handCurrentY);
 				}
-				else 
+				else
 					this.isMissed = true;
 
 				this.isPlayerRising = false;

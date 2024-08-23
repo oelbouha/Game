@@ -22,4 +22,4 @@ async function loadGame() {
     
 }
 
-loadGame();
+// loadGame();
