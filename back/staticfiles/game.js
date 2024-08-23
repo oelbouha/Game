@@ -86,10 +86,10 @@ class game {
 	}
 
 	showLoadingScreen(message) {
-		this.context.fillStyle = this.attackColor;
+		this.context.fillStyle = this.retreatColor;
 		this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 		this.context.fillStyle = 'white';
-		this.context.font = '30px Arial';
+		this.context.font = '35px Arial';
 		this.context.textAlign = 'center';
 		this.context.fillText(message, this.canvas.width / 2, this.canvas.height / 2);
 	}
@@ -291,7 +291,7 @@ class game {
 			this.drawHands();
 	
 		this.drawButtons();
-		
+
 		// if (this.playerOne.score >= 3)
 		// 	this.playerOne.harmImage.draw(this.context, this.gameCanvas.getCenterX(this.playerOne.harmImage.width), this.playerTwo.handCurrentY);
 		// if (this.playerTwo.score >= 3)

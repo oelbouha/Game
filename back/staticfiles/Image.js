@@ -4,8 +4,8 @@ class CustomImage {
 		this.img = new Image();
 		this.x = 0;
 		this.y = 0;
-		this.width = 0;
-		this.height = 0;
+		this.width = 223;
+		this.height = 883;
 		this.loaded = false;
 		
 		this.img.onload = () => {
