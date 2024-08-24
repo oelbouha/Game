@@ -51,6 +51,8 @@ class game {
 		this.playerOneAttackButton = new CustomImage(STATIC_URL + "/assets/attack-green.png");
 		this.playerTwoAttackButton = new CustomImage(STATIC_URL + "/assets/attack-blue.png");
 		
+		this.assets = [this.winImage, this.loseImage, this.effectImage, this.playerOneHand, this.playerTwoHand, this.topAttackButton, this.bottomAttackButton, this.topRetreatButton, this.bottomRetreatButton, this.playerOneAttackButton, this.playerTwoAttackButton];
+		
 		this.handleCanvasClick = this.handleCanvasClick.bind(this);
 		this.handleKeyPress = this.handleKeyPress.bind(this);
 
@@ -60,23 +62,27 @@ class game {
 		this.attackColor = "#FFA500";
 		this.retreatColor = "#317AB3";
 
-
 		this.topButton = this.topRetreatButton;
 		this.bottomButton = this.bottomAttackButton;
 
 		this.topBackgroundColor = "#FFA500";
 		this.bottomBackgroundColor = "#317AB3";
 
-		this.playerOne = new Player("top", "retreat", this.gameCanvas.getHeight(), this.playerTwoHand, this.playerOneHand, this.context);
-		this.playerTwo = new Player("buttom", "attack", this.gameCanvas.getHeight(), this.playerOneHand, this.playerTwoHand, this.context);
+		this.playerOne = new Player("top", "retreat", this.gameCanvas.getHeight(), this.playerTwoHand, this.playerOneHand, this.context, this.assets);
+		this.playerTwo = new Player("buttom", "attack", this.gameCanvas.getHeight(), this.playerOneHand, this.playerTwoHand, this.context, this.assets);
 
 		this.connectWebSocket();
+
+		//
+		this.cooldownPeriod = 800;
+        this.playerOneLastActionTime = 0;
+        this.playerTwoLastActionTime = 0;
 	}
 
 	connectWebSocket() {
 		this.socket.onopen = (e) => {
 			console.log("Connected to server");
-			this.sendMessage("Hello, server!");
+			// this.sendMessage("Hello, server!");
 		};
 	
 		this.socket.onmessage = (event) => {
@@ -115,7 +121,7 @@ class game {
 	}
 
 	handleServerMessage(data) {
-		console.log ("Handling server message");
+		// console.log ("Handling server message");
 
 		const action = data.action;
 		const player = data.player;
@@ -128,10 +134,12 @@ class game {
 				this.playerTwo.startAnimation("attack");
 		}
 		if (action == "retreat" ) {
-			if (player == "playerOne")
+			if (player == "playerOne") {
 				this.playerOne.startAnimation("retreat");
-			else
+			}
+			else {
 				this.playerTwo.startAnimation("retreat");
+			}
 		}
 		if (action == "reset")
 			this.reset();
@@ -146,9 +154,8 @@ class game {
 	}
 
 	waitForImagesToLoad() {
-		let images = [this.playerTwoHand, this.topButton, this.bottomButton, this.playerOneHand];
 		let loadedImages = 0;
-		images.forEach((image) => {
+		this.assets.forEach((image) => {
 			if (image.loaded) {
 				loadedImages++;
 			}
@@ -162,15 +169,9 @@ class game {
 			}
 		});
 	}
-	
-	animateHands() {
-		// this.playerOne.animate();
-		// this.playerTwo.animate();
-	}
 
 	reset() {
 		this.clearCanvas();
-		console.log("resetting the game");
 		if (this.playerTwo.win) {
 			this.playerOne.state = "attack";
 			this.playerTwo.state = "retreat";
@@ -218,27 +219,36 @@ class game {
 		let canvasWidth = this.gameCanvas.getWidth();
 		let canvasHeight = this.gameCanvas.getHeight();
 
+		let shakeOffsetX = this.playerOne.shakeOffsetX || 0;
+		if (this.playerTwo.state === "attack")
+			shakeOffsetX = this.playerTwo.shakeOffsetX || 0;
 		let margin = 10;
 		let tophalf = canvasHeight / 2 - margin;
 		let bottomhalf = canvasHeight / 2 + margin;
-	
 
 		this.context.fillStyle = this.topBackgroundColor;
-		this.context.fillRect(0, 0, canvasWidth, tophalf);
+		this.context.fillRect(shakeOffsetX, 0, canvasWidth, tophalf);
 	
 		this.context.fillStyle = this.bottomBackgroundColor;
-		this.context.fillRect(0, canvasHeight / 2, canvasWidth, bottomhalf);
+		this.context.fillRect(shakeOffsetX, canvasHeight / 2, canvasWidth, bottomhalf);
 	}
 
 	drawButtons() {
 		let canvasWidth = this.gameCanvas.getWidth();
 		let canvasHeight = this.gameCanvas.getHeight();
 		
-		let buttonX = this.gameCanvas.getCenterX(this.topButton.width);
+		console.log("player one shake: ", this.playerOne.shakeOffsetX);
+		console.log("playertwo shake: ", this.playerTwo.shakeOffsetX);
+
+		let shakeOffsetX = this.playerOne.shakeOffsetX || 0;
+		if (this.playerTwo.state === "attack")
+			shakeOffsetX = this.playerTwo.shakeOffsetX || 0;
+
+		let buttonX = this.gameCanvas.getCenterX(this.topButton.width) + shakeOffsetX;
 		let buttonY = -20;
 		this.topButton.draw(this.context, buttonX, buttonY);
 		
-		buttonX = this.gameCanvas.getCenterX(this.bottomButton.width);
+		buttonX = this.gameCanvas.getCenterX(this.bottomButton.width) + shakeOffsetX;
 		buttonY = canvasHeight - 110;
 		this.bottomButton.draw(this.context, buttonX, buttonY);
 	}
@@ -258,7 +268,6 @@ class game {
 			this.playerTwoHand.draw(this.context, playerTwoHandX, playerTwoHandY);
 			this.playerOneHand.draw(this.context, playerOneHandX, playerOneHandY);
 		}
-		// this.effectImage.draw(this.context, this.gameCanvas.getCenterX(this.effectImage.width), this.gameCanvas.getCenterY(this.effectImage.height));
 	}
 
 	clearCanvas() {
@@ -306,11 +315,6 @@ class game {
 			this.drawHands();
 	
 		this.drawButtons();
-
-		// if (this.playerOne.score >= 3)
-		// 	this.playerOne.harmImage.draw(this.context, this.gameCanvas.getCenterX(this.playerOne.harmImage.width), this.playerTwo.handCurrentY);
-		// if (this.playerTwo.score >= 3)
-		// 	this.playerTwo.harmImage.draw(this.context, this.gameCanvas.getCenterX(this.playerTwo.harmImage.width), this.playerOne.handCurrentY);
 	}
 
 	switchColors() {
@@ -320,49 +324,80 @@ class game {
 	}
 
 	handleKeyPress(event) {
+
+		const currentTime = Date.now();
+
 		// for player one
 		if (event.key === "s") {
-			if (this.playerOne.getState() == "attack")
-				this.sendMessage({action: this.playerOne.state, player: "playerOne"});
+			if (this.playerOne.getState() == "attack") {
+				if (currentTime - this.playerOneLastActionTime >= this.cooldownPeriod) {
+					this.sendMessage({action: this.playerOne.state, player: "playerOne"});
+					this.playerOneLastActionTime = currentTime;
+				}
+			}
+				
 		}
 		if (event.key === "w") {
-			if (this.playerOne.getState() == "retreat")
-				this.sendMessage({action: this.playerOne.state, player: "playerOne"});
+			if (this.playerOne.getState() == "retreat") {
+				if (currentTime - this.playerOneLastActionTime >= this.cooldownPeriod) {
+					this.sendMessage({action: this.playerOne.state, player: "playerOne"});
+					this.playerOneLastActionTime = currentTime;
+				}
+			}
 		}
 		// for player two
 		if (event.key === "ArrowUp") {
-			if (this.playerTwo.getState() == "attack")
-				this.sendMessage({action: this.playerTwo.state, player: "playerTwo"});
+			if (this.playerTwo.getState() == "attack") {
+				if (currentTime - this.playerTwoLastActionTime >= this.cooldownPeriod) {
+					this.sendMessage({action: this.playerTwo.state, player: "playerTwo"});
+					this.playerTwoLastActionTime = currentTime;
+			}
+		}	
 		}
+
 		if (event.key === "ArrowDown") {
-			if (this.playerTwo.getState() == "retreat")
-				this.sendMessage({action: this.playerTwo.state, player: "playerTwo"});
+			if (this.playerTwo.getState() == "retreat") {
+				if (currentTime - this.playerTwoLastActionTime >= this.cooldownPeriod) {
+					this.sendMessage({action: this.playerTwo.state, player: "playerTwo"});
+					this.playerTwoLastActionTime = currentTime;
+				}
+			}
 		}
 	}
 
 	handleCanvasClick(event) {
-		let rect = this.canvas.getBoundingClientRect();
-		let x = event.pageX -  rect.left;
-		let y = event.pageY - rect.top;
+        let rect = this.canvas.getBoundingClientRect();
+        let x = event.pageX - rect.left;
+        let y = event.pageY - rect.top;
+
+        const currentTime = Date.now();
 
         if (this.isButtonClicked(x, y, this.topButton)) {
-			if (this.playerOne.win || this.playerTwo.win) {
-				this.sendMessage({action: "reset"});
-				return ;
-			}
-			if (!this.playerOne.isPlayerAnimating) 
-				this.sendMessage({action: this.playerOne.state, player: "playerOne"});
-			
-		}
-		if (this.isButtonClicked(x, y, this.bottomButton)) {
-			if (this.playerOne.win || this.playerTwo.win) {
-				this.sendMessage({action: "reset"});
-				return ;
-			}
-            if (!this.playerTwo.isPlayerAnimating)
-				this.sendMessage({action: this.playerTwo.state, player: "playerTwo"});
+            if (this.playerOne.win || this.playerTwo.win) {
+                this.sendMessage({action: "reset"});
+                return;
+            }
+            if (!this.playerOne.isPlayerAnimating) {
+                if (currentTime - this.playerOneLastActionTime >= this.cooldownPeriod) {
+                    this.sendMessage({action: this.playerOne.state, player: "playerOne"});
+                    this.playerOneLastActionTime = currentTime;  // Set last action time
+                }
+            }
+        }
+        if (this.isButtonClicked(x, y, this.bottomButton)) {
+            if (this.playerOne.win || this.playerTwo.win) {
+                this.sendMessage({action: "reset"});
+                return;
+            }
+            if (!this.playerTwo.isPlayerAnimating) {
+                if (currentTime - this.playerTwoLastActionTime >= this.cooldownPeriod) {
+                    this.sendMessage({action: this.playerTwo.state, player: "playerTwo"});
+                    this.playerTwoLastActionTime = currentTime;  // Set last action time
+                }
+            }
         }
     }
+
 	drawScore() {
 		const	margin = 10;
 		const	fontSize = 50;
