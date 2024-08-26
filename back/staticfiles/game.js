@@ -236,9 +236,6 @@ class game {
 	drawButtons() {
 		let canvasWidth = this.gameCanvas.getWidth();
 		let canvasHeight = this.gameCanvas.getHeight();
-		
-		console.log("player one shake: ", this.playerOne.shakeOffsetX);
-		console.log("playertwo shake: ", this.playerTwo.shakeOffsetX);
 
 		let shakeOffsetX = this.playerOne.shakeOffsetX || 0;
 		if (this.playerTwo.state === "attack")
