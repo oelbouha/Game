@@ -165,16 +165,13 @@ class Player {
 	async handleHit() {
 		this.score += 1;
 		this.opponent.isPlayerHit = true;
-		if (this.score >= this.maxScore)
-			this.win = true;
 	
 		this.slapEffectImage.draw(this.context, 1200 / 2 - this.slapEffectImage.width / 2, this.handCurrentY);
 		this.slapEffectImage1.draw(this.context, 1200 / 2 - this.slapEffectImage1.width / 2, this.opponent.handCurrentY);
 	
 		// Start shaking the canvas
 		shakeTime = shakeDuration;
-		if (this.win == false)
-			this.shakeCanvas();
+		this.shakeCanvas();
 	
 		// Freeze everything for a second
 		this.isFrozen = true;
@@ -195,6 +192,11 @@ class Player {
 					this.isPlayerFalling = true;
 				} else {
 					this.isPlayerRising = true;
+				}
+	
+				// Check for win condition after animation is complete
+				if (this.score >= this.maxScore) {
+					this.win = true;
 				}
 	
 				resolve();
@@ -235,7 +237,6 @@ class Player {
                 this.handCurrentY = this.maxTopAttackHeight;
 				if (this.isHitTheOpponent()) {
 					await this.handleHit();
-					// The animation will continue after the 1-second freeze
 				} else {
 					this.isMissed = true;
 				}
@@ -265,7 +266,6 @@ class Player {
 
 				if (this.isHitTheOpponent()) {
 					await this.handleHit();
-					// The animation will continue after the 1-second freeze
 				} else {
 					this.isMissed = true;
 				}
