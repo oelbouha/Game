@@ -201,7 +201,8 @@ class Player {
 					this.slapEffectImage1.draw(this.context, 1200 / 2 - this.slapEffectImage1.width / 2, this.opponent.handCurrentY);
 					
 					shakeTime = shakeDuration;
-					this.shakeCanvas();
+					if (this.win == false)
+						this.shakeCanvas();
 				}
 				else {
 					this.isMissed = true;
@@ -233,11 +234,8 @@ class Player {
 				if (this.isHitTheOpponent())
 				{
 					this.score += 1;
-					if (this.score >= this.maxScore) {
+					if (this.score >= this.maxScore)
 						this.win = true;
-						this.shakeOffsetX = 0;
-						this.shakeOffsetY = 0;
-					}
 
 					this.isPlayerHit = true;
 					this.slapEffectImage.draw(this.context, 1200 / 2 - this.slapEffectImage.width / 2, this.handCurrentY );
@@ -245,7 +243,8 @@ class Player {
 
 					// Start shaking the canvas
     				shakeTime = shakeDuration;
-    				this.shakeCanvas();
+					if (this.win == false)
+    					this.shakeCanvas();
 				}
 				else
 					this.isMissed = true;
