@@ -207,11 +207,13 @@ class game {
 	}
 
 	gameLoop() {
-		this.playerOne.update();
-		this.playerTwo.update();
-
+		if (!this.playerOne.isFrozen && !this.playerTwo.isFrozen) {
+			this.playerOne.update();
+			this.playerTwo.update();
+		}
+	
 		this.drawAll();
-
+	
 		requestAnimationFrame(() => this.gameLoop());
 	}
 
@@ -220,17 +222,20 @@ class game {
 		let canvasHeight = this.gameCanvas.getHeight();
 
 		let shakeOffsetX = this.playerOne.shakeOffsetX || 0;
-		if (this.playerTwo.state === "attack")
+		let shakeOffsetY = this.playerOne.shakeOffsetY || 0;
+		if (this.playerTwo.state === "attack") {
 			shakeOffsetX = this.playerTwo.shakeOffsetX || 0;
+			shakeOffsetY = this.playerTwo.shakeOffsetY || 0;
+		}
 		let margin = 10;
 		let tophalf = canvasHeight / 2 - margin;
 		let bottomhalf = canvasHeight / 2 + margin;
 
 		this.context.fillStyle = this.topBackgroundColor;
-		this.context.fillRect(shakeOffsetX, 0, canvasWidth, tophalf);
+		this.context.fillRect(shakeOffsetX, shakeOffsetY, canvasWidth, tophalf);
 	
 		this.context.fillStyle = this.bottomBackgroundColor;
-		this.context.fillRect(shakeOffsetX, canvasHeight / 2, canvasWidth, bottomhalf);
+		this.context.fillRect(shakeOffsetX, canvasHeight / 2 + shakeOffsetY, canvasWidth, bottomhalf);
 	}
 
 	drawButtons() {
@@ -242,11 +247,13 @@ class game {
 			shakeOffsetX = this.playerTwo.shakeOffsetX || 0;
 
 		let buttonX = this.gameCanvas.getCenterX(this.topButton.width) + shakeOffsetX;
-		let buttonY = -20;
+		
+		let buttonY = -20 + (this.playerOne.shakeOffsetY || 0);
+		
 		this.topButton.draw(this.context, buttonX, buttonY);
 		
 		buttonX = this.gameCanvas.getCenterX(this.bottomButton.width) + shakeOffsetX;
-		buttonY = canvasHeight - 110;
+		buttonY = canvasHeight - 110 + (this.playerTwo.shakeOffsetY || 0);
 		this.bottomButton.draw(this.context, buttonX, buttonY);
 	}
 
@@ -306,8 +313,9 @@ class game {
 
 		this.drawScore();
 
-		if (this.playerOne.win || this.playerTwo.win)
+		if (this.playerOne.win || this.playerTwo.win) {
 			this.drawWinner();
+		}
 		else
 			this.drawHands();
 	
@@ -324,6 +332,13 @@ class game {
 
 		const currentTime = Date.now();
 
+		if (this.playerOne.isFrozen || this.playerTwo.isFrozen) {
+			return; // Ignore input while frozen
+		}
+		console.log("Key pressed", event.key);
+		if (this.playerOne.win || this.playerTwo.win) {
+			return;
+		}
 		// for player one
 		if (event.key === "s") {
 			if (this.playerOne.getState() == "attack") {
@@ -369,24 +384,30 @@ class game {
 
         const currentTime = Date.now();
 
+		console.log("Canvas clicked", x, y);
+
+		if (this.playerOne.isFrozen || this.playerTwo.isFrozen) {
+			return; // Ignore input while frozen
+		}
         if (this.isButtonClicked(x, y, this.topButton)) {
-            if (this.playerOne.win || this.playerTwo.win) {
-                this.sendMessage({action: "reset"});
+			if (this.playerOne.win || this.playerTwo.win) {
+				this.sendMessage({action: "reset"});
                 return;
             }
-            if (!this.playerOne.isPlayerAnimating) {
-                if (currentTime - this.playerOneLastActionTime >= this.cooldownPeriod) {
-                    this.sendMessage({action: this.playerOne.state, player: "playerOne"});
+            else if (!this.playerOne.isPlayerAnimating) {
+				if (currentTime - this.playerOneLastActionTime >= this.cooldownPeriod) {
+					this.sendMessage({action: this.playerOne.state, player: "playerOne"});
                     this.playerOneLastActionTime = currentTime;  // Set last action time
                 }
             }
         }
         if (this.isButtonClicked(x, y, this.bottomButton)) {
+			console.log("Top button clicked", this.playerTwo.isPlayerHit);
             if (this.playerOne.win || this.playerTwo.win) {
                 this.sendMessage({action: "reset"});
                 return;
             }
-            if (!this.playerTwo.isPlayerAnimating) {
+            else if (!this.playerTwo.isPlayerAnimating) {
                 if (currentTime - this.playerTwoLastActionTime >= this.cooldownPeriod) {
                     this.sendMessage({action: this.playerTwo.state, player: "playerTwo"});
                     this.playerTwoLastActionTime = currentTime;  // Set last action time

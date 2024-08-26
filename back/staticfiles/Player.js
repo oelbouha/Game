@@ -20,9 +20,11 @@ class Player {
 		this.score = 0;
 		this.state = initialRole;
 		this.hand = new Hand(position, canvasHeight, PlayerHandImage);
+		
 		this.slapEffectImage = new CustomImage(STATIC_URL + "/assets/slap-effect.png");
 		this.slapEffectImage1 = new CustomImage(STATIC_URL + "/assets/slap.png");
-		this.harmImage = new CustomImage(STATIC_URL + "/assets/harm.png");
+		this.missedImage = new CustomImage(STATIC_URL + "/assets/missed.png");
+
 		this.position = position;
 		this.isPlayerPaused = false;
 
@@ -51,6 +53,8 @@ class Player {
 		this.shakeOffsetX = 0;
         this.shakeOffsetY = 0;
         this.isShaking = false;
+
+		this.isFrozen = false;
 	}
 
 	setOpponent(opponent) {
@@ -157,6 +161,47 @@ class Player {
 		if (this.isPlayerAnimating)
 			this.animationFrame = requestAnimationFrame(() => this.animateHand());
 	}
+
+	async handleHit() {
+		this.score += 1;
+		this.opponent.isPlayerHit = true;
+		if (this.score >= this.maxScore)
+			this.win = true;
+	
+		this.slapEffectImage.draw(this.context, 1200 / 2 - this.slapEffectImage.width / 2, this.handCurrentY);
+		this.slapEffectImage1.draw(this.context, 1200 / 2 - this.slapEffectImage1.width / 2, this.opponent.handCurrentY);
+	
+		// Start shaking the canvas
+		shakeTime = shakeDuration;
+		if (this.win == false)
+			this.shakeCanvas();
+	
+		// Freeze everything for a second
+		this.isFrozen = true;
+		this.opponent.isFrozen = true;
+		this.isPlayerAnimating = false;
+		this.opponent.isPlayerAnimating = false;
+	
+		return new Promise(resolve => {
+			setTimeout(() => {
+				this.isFrozen = false;
+				this.opponent.isFrozen = false;
+				this.isPlayerAnimating = true;
+				this.opponent.isPlayerAnimating = true;
+	
+				// Return hand to initial position
+				this.handCurrentY = this.hand.getInitialY();
+				if (this.position === "top") {
+					this.isPlayerFalling = true;
+				} else {
+					this.isPlayerRising = true;
+				}
+	
+				resolve();
+			}, this.pauseDuration);
+		});
+	}
+
 	animateAttack() {
 		// console.log("animating attack ...");
 		if (!this.isPlayerAnimating) {
@@ -183,38 +228,25 @@ class Player {
 			this.switchRoles();
 	}
 
-	animateTopAttack() {
+	async animateTopAttack() {
 		if (this.isPlayerFalling) {
             this.handCurrentY += this.animationSpeed;
             if (this.handCurrentY >= this.maxTopAttackHeight) {
                 this.handCurrentY = this.maxTopAttackHeight;
-				if (this.isHitTheOpponent()){
-					this.score += 1;
-					if (this.score >= this.maxScore) {
-						this.win = true;
-						this.shakeOffsetX = 0;
-						this.shakeOffsetY = 0;
-					}
-					this.isPlayerHit  = true;
-
-					this.slapEffectImage.draw(this.context, 1200 / 2 - this.slapEffectImage.width / 2, this.opponent.handCurrentY);
-					this.slapEffectImage1.draw(this.context, 1200 / 2 - this.slapEffectImage1.width / 2, this.opponent.handCurrentY);
-					
-					shakeTime = shakeDuration;
-					if (this.win == false)
-						this.shakeCanvas();
-				}
-				else {
+				if (this.isHitTheOpponent()) {
+					await this.handleHit();
+					// The animation will continue after the 1-second freeze
+				} else {
 					this.isMissed = true;
 				}
-                this.isPlayerFalling = false;
-                this.isPlayerPaused = true;
-                setTimeout(() => {
-                    this.isPlayerPaused = false;
-                    this.animateTopAttack();
-                }, this.pauseDuration);
-                return;
-            }
+			this.isPlayerFalling = false;
+			this.isPlayerPaused = true;
+			setTimeout(() => {
+				this.isPlayerPaused = false;
+				this.animateTopAttack();
+			}, this.pauseDuration);
+			return;
+		}
         } else {
             this.handCurrentY -= this.animationSpeed;
             if (this.handCurrentY <= this.hand.getInitialY()) {
@@ -225,39 +257,28 @@ class Player {
         }
 	}
 
-	animateButtomAttack() {
+	async animateButtomAttack() {
 		if (this.isPlayerRising) {
 			this.handCurrentY -= this.animationSpeed;
 			if (this.handCurrentY <= this.maxButtomAttack) {
 				this.handCurrentY = this.maxButtomAttack;
 
-				if (this.isHitTheOpponent())
-				{
-					this.score += 1;
-					if (this.score >= this.maxScore)
-						this.win = true;
-
-					this.isPlayerHit = true;
-					this.slapEffectImage.draw(this.context, 1200 / 2 - this.slapEffectImage.width / 2, this.handCurrentY );
-					this.slapEffectImage1.draw(this.context, 1200 / 2 - this.slapEffectImage1.width / 2, this.opponent.handCurrentY);
-
-					// Start shaking the canvas
-    				shakeTime = shakeDuration;
-					if (this.win == false)
-    					this.shakeCanvas();
-				}
-				else
+				if (this.isHitTheOpponent()) {
+					await this.handleHit();
+					// The animation will continue after the 1-second freeze
+				} else {
 					this.isMissed = true;
+				}
 
-				this.isPlayerRising = false;
-				this.isPlayerPaused = true;
-				
-				setTimeout(() => {
-					this.isPlayerPaused = false;
-					this.animateButtomAttack();
-				}, this.pauseDuration);
-				
-				return;
+			this.isPlayerRising = false;
+			this.isPlayerPaused = true;
+			
+			setTimeout(() => {
+				this.isPlayerPaused = false;
+				this.animateButtomAttack();
+			}, this.pauseDuration);
+			
+			return;
 			}
 		} else {
 			// Falling
