@@ -81,6 +81,12 @@ class Player {
         }
     }
 
+	attack () {
+		if (this.state === "attack") {
+			this.startAnimation("attack");
+		}
+	}
+
 	startAnimation(type) {
 		this.isPlayerAnimating = true;
 		if (type === "attack")
@@ -147,19 +153,6 @@ class Player {
 			this.state = "attack";
 		}
 		this.isMissed = false;
-	}
-
-	animateHand() {
-		if (!this.isPlayerAnimating) {
-			cancelAnimationFrame(this.animationFrame);
-			return;
-		}
-		if (this.postion === "top")
-			this.animateTopHand();
-		else
-			this.animateButtomHand();
-		if (this.isPlayerAnimating)
-			this.animationFrame = requestAnimationFrame(() => this.animateHand());
 	}
 
 	async handleHit() {

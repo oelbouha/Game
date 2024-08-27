@@ -77,6 +77,18 @@ class game {
 		this.cooldownPeriod = 800;
         this.playerOneLastActionTime = 0;
         this.playerTwoLastActionTime = 0;
+
+		// let attack = () => {
+		// 	// code
+		// }
+		// let attack2 = functionalAttack
+
+		// let retreat = () => {
+		// 	// code
+		// }
+
+		// // game over
+		// attack = gameOverAttack
 	}
 
 	connectWebSocket() {
@@ -121,8 +133,6 @@ class game {
 	}
 
 	handleServerMessage(data) {
-		// console.log ("Handling server message");
-
 		const action = data.action;
 		const player = data.player;
 
@@ -335,7 +345,7 @@ class game {
 		if (this.playerOne.isFrozen || this.playerTwo.isFrozen) {
 			return; // Ignore input while frozen
 		}
-		console.log("Key pressed", event.key);
+
 		if (this.playerOne.win || this.playerTwo.win) {
 			return;
 		}
@@ -384,10 +394,8 @@ class game {
 
         const currentTime = Date.now();
 
-		console.log("Canvas clicked", x, y);
-
 		if (this.playerOne.isFrozen || this.playerTwo.isFrozen) {
-			return; // Ignore input while frozen
+			return;
 		}
         if (this.isButtonClicked(x, y, this.topButton)) {
 			if (this.playerOne.win || this.playerTwo.win) {
@@ -397,12 +405,11 @@ class game {
             else if (!this.playerOne.isPlayerAnimating) {
 				if (currentTime - this.playerOneLastActionTime >= this.cooldownPeriod) {
 					this.sendMessage({action: this.playerOne.state, player: "playerOne"});
-                    this.playerOneLastActionTime = currentTime;  // Set last action time
+                    this.playerOneLastActionTime = currentTime;
                 }
             }
         }
         if (this.isButtonClicked(x, y, this.bottomButton)) {
-			console.log("Top button clicked", this.playerTwo.isPlayerHit);
             if (this.playerOne.win || this.playerTwo.win) {
                 this.sendMessage({action: "reset"});
                 return;
@@ -410,7 +417,7 @@ class game {
             else if (!this.playerTwo.isPlayerAnimating) {
                 if (currentTime - this.playerTwoLastActionTime >= this.cooldownPeriod) {
                     this.sendMessage({action: this.playerTwo.state, player: "playerTwo"});
-                    this.playerTwoLastActionTime = currentTime;  // Set last action time
+                    this.playerTwoLastActionTime = currentTime;
                 }
             }
         }
