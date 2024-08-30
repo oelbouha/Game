@@ -4,11 +4,19 @@ class Hand {
 	constructor(state, canvasHeight, PlayerHandImage) {
 		this.PlayerHandImage = PlayerHandImage;
 		this.state = state;
-		this.initialY = -883 / 2;
 
+		this.initialY = -(this.PlayerHandImage.getHeight() / 2);
 		if (state === "buttom")
-			this.initialY = canvasHeight - 883 / 2;
+			this.initialY = canvasHeight - (this.PlayerHandImage.getHeight() / 2);
 		this.currentY = this.initialY;
+	}
+
+	getWidth() {
+		return this.PlayerHandImage.width;
+	}
+	
+	getHeight() {
+		return this.PlayerHandImage.height;
 	}
 
 	getImage() {

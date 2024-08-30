@@ -9,39 +9,56 @@ let shakeTime = 0;
 
 
 class Player {
-	constructor(position, initialRole, canvasHeight, PlayerHandImage, handSize, context, assets) {
+	constructor(position, initialRole, canvas, PlayerHandImage, context, assets) {
 		this.assets = assets;
 		this.context = context;
-		this.maxScore = 5;
-		this.harmLevel = 6;
-		this.win = false;
-		this.opponent = null;
-		this.isMissed = false;
-		this.score = 0;
 		this.state = initialRole;
-		this.hand = new Hand(position, canvasHeight, PlayerHandImage);
+		this.position = position;
+		this.handImage = PlayerHandImage;
+		this.canvas = canvas;
+		this.opponent = null;
+		this.canvasWidth = canvas.width;
+		this.canvasHeight = canvas.height;
+		this.shouldAttack = true;
+		this.shouldRetreat = true;
 		
 		this.slapEffectImage = new CustomImage(STATIC_URL + "/assets/slap-effect.png");
 		this.slapEffectImage1 = new CustomImage(STATIC_URL + "/assets/slap.png");
 		this.missedImage = new CustomImage(STATIC_URL + "/assets/missed.png");
-
-		this.position = position;
+	}
+	
+	initPlayer() {
+		this.win = false;
+		this.maxScore = 5;
+		this.harmLevel = 6;
 		this.isPlayerPaused = false;
+		this.score = 0;
+		this.isMissed = false;
 
-		this.handWidth = handSize.width;
-		this.handHeight = handSize.height;
-
+		this.hand = new Hand(this.position, this.canvasHeight, this.handImage);
+		this.handWidth = this.hand.getWidth();
+		this.handHeight = this.hand.getHeight();
+		
 		this.isPlayerAnimating = false;
 		this.isPlayerRising = true;
 		this.isPlayerFalling = true;
-
+		
 		this.pauseDuration = 400;
 		this.animationSpeed = 100;
 		this.animationFrame = null;
 		
-		this.maxButtomAttack =  160;
-		this.maxTopAttackHeight = canvasHeight - 1040;
+		this.maxAtack = this.handHeight / 2 - 70;
+		this.maxRetreat = 250;
 	
+		if (this.position === "top") {
+			this.maxAttackHeight = this.hand.getInitialY() + this.maxAtack;
+			this.maxRetreat = this.hand.getInitialY() - this.maxRetreat;
+		}
+		if (this.position === "buttom") {
+			this.maxAttackHeight = this.hand.getInitialY() - this.maxAtack;
+			this.maxRetreat = this.hand.getInitialY() + this.maxRetreat;
+		}
+
 		this.maxTopRetreat = -700;
 		this.maxRetreatButtomHeight = 250;
 
@@ -81,38 +98,34 @@ class Player {
         }
     }
 
-	attack () {
-		if (this.state === "attack") {
-			this.startAnimation("attack");
-		}
-	}
-
 	startAnimation(type) {
 		this.isPlayerAnimating = true;
-		if (type === "attack")
+
+		if (type === "attack" && this.shouldAttack)
 			this.animateAttack();
-		else if (type === "retreat")
+		else if (type === "retreat" && this.shouldRetreat)
 			this.animateRetreat();
 	}
 
 	isHitTheOpponent() {
+		const hitRec = 50;
 		if (this.position === "buttom") {			
-			let opponentHandY = this.opponent.handCurrentY + this.opponent.handHeight - 40;
+			let opponentHandY = this.opponent.handCurrentY + this.opponent.handHeight - hitRec;
 			let playerHandY = this.handCurrentY;
 
 			if (this.opponent.isPlayerAnimating)
-				opponentHandY = this.opponent.handCurrentY + this.handHeight - 40;
+				opponentHandY = this.opponent.handCurrentY + this.handHeight - hitRec;
 
 			if (playerHandY <= opponentHandY )
 				return true;
 		}
 		else if (this.position === "top") {
-			let opponentHandY = this.opponent.handCurrentY + 40;
+			let opponentHandY = this.opponent.handCurrentY + hitRec;
 
 			let playerHandY = this.handCurrentY + this.handHeight;
 
 			if (this.opponent.isPlayerAnimating)
-				opponentHandY = this.opponent.handCurrentY + 40;
+				opponentHandY = this.opponent.handCurrentY + hitRec;
 
 			if (playerHandY >= opponentHandY)
 				return true;
@@ -159,8 +172,13 @@ class Player {
 		this.score += 1;
 		this.opponent.isPlayerHit = true;
 	
-		this.slapEffectImage.draw(this.context, 1200 / 2 - this.slapEffectImage.width / 2, this.handCurrentY);
-		this.slapEffectImage1.draw(this.context, 1200 / 2 - this.slapEffectImage1.width / 2, this.opponent.handCurrentY);
+		// Draw slap effect
+		let handY = this.getHandCurrentY();
+		if (this.position === "top")
+			handY = this.opponent.getHandCurrentY();;
+
+		this.slapEffectImage.draw(this.context, this.canvasWidth / 2 - this.slapEffectImage.width / 2, handY);
+		this.slapEffectImage1.draw(this.context, this.canvasWidth / 2 - this.slapEffectImage1.width / 2, handY);
 	
 		// Start shaking the canvas
 		shakeTime = shakeDuration;
@@ -226,8 +244,9 @@ class Player {
 	async animateTopAttack() {
 		if (this.isPlayerFalling) {
             this.handCurrentY += this.animationSpeed;
-            if (this.handCurrentY >= this.maxTopAttackHeight) {
-                this.handCurrentY = this.maxTopAttackHeight;
+            if (this.handCurrentY >= this.maxAttackHeight) {
+				console.log("max top attack height: ", this.maxAttackHeight);
+                this.handCurrentY = this.maxAttackHeight;
 				if (this.isHitTheOpponent()) {
 					await this.handleHit();
 				} else {
@@ -254,8 +273,8 @@ class Player {
 	async animateButtomAttack() {
 		if (this.isPlayerRising) {
 			this.handCurrentY -= this.animationSpeed;
-			if (this.handCurrentY <= this.maxButtomAttack) {
-				this.handCurrentY = this.maxButtomAttack;
+			if (this.handCurrentY <= this.maxAttackHeight) {
+				this.handCurrentY = this.maxAttackHeight;
 
 				if (this.isHitTheOpponent()) {
 					await this.handleHit();
@@ -310,8 +329,8 @@ class Player {
 	animateTopRetreat() {
 		if (this.isPlayerRising) {
 			this.handCurrentY -= this.animationSpeed;
-			if (this.handCurrentY <= this.maxTopRetreat){
-				this.handCurrentY = this.maxTopRetreat;
+			if (this.handCurrentY <= this.maxRetreat){
+				this.handCurrentY = this.maxRetreat;
 				this.isPlayerRising = false;
 				this.isPlayerPaused = true;
 				setTimeout(() => {
@@ -335,8 +354,8 @@ class Player {
 	animateButtomRetreat() {
 		if (this.isPlayerFalling) {
 			this.handCurrentY += this.animationSpeed;
-			if (this.handCurrentY >= this.maxRetreatButtomHeight) {
-				this.handCurrentY = this.hand.getInitialY() + this.maxRetreatButtomHeight;
+			if (this.handCurrentY >= this.maxRetreat) {
+				this.handCurrentY =  this.maxRetreat;
 				this.isPlayerFalling = false;
 				this.isPlayerPaused = true;
 				setTimeout(() => {

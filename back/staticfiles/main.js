@@ -6,20 +6,16 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function loadGame() {
+async function initGame() {
     console.log("Starting game load");
-    
-    let message = "Loading assets ... 0%";
-    gameInstance.showLoadingScreen(message);
-    for (let i = 0; i < 5; i++) {
-        message = `Loading assets ... ${i * 20}%`;
-        gameInstance.showLoadingScreen(message);
-        await sleep(1000);
+
+    while (!gameInstance.waitForImagesToLoad()) {
+        gameInstance.showLoadingScreen("Loading assets ...");
+        await sleep(200);
     }
-    gameInstance.showLoadingScreen("Loading assets ... 100%");
-    await sleep(500);
-    gameInstance.startGame();
-    
+    gameInstance.initGame();
+    // gameInstance.startGame();
 }
 
-// loadGame();
+
+initGame();

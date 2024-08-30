@@ -18,23 +18,17 @@ async function loadGame(gameInstance) {
     }
     gameInstance.showLoadingScreen("Loading game ... 100%");
     await sleep(500);
-    gameInstance.startGame();
-}
-
-class offlineGame {
-	constructor() {
-		
-	}
+    // gameInstance.startGame();
 }
 
 
-class game {
+class onlineGame {
 	constructor() {
 		this.socket = new WebSocket('ws://127.0.0.1:8000/ws/game/');
 		this.gameCanvas = new game_Canvas();
 		this.context = this.gameCanvas.getContext();
 		this.canvas = this.gameCanvas.getCanvas();
-		this.offline = false;
+		this.offline = true;
 		this.canvas.tabIndex = 0;
 		this.gameOver = false;
 		this.canvas.focus();
@@ -75,6 +69,8 @@ class game {
 		this.topBackgroundColor = "#FFA500";
 		this.bottomBackgroundColor = "#317AB3";
 
+		this.playerOne = new Player("top", "retreat", this.gameCanvas, this.playerOneHand, this.context, this.assets);
+		this.playerTwo = new Player("buttom", "attack", this.gameCanvas, this.playerTwoHand, this.context, this.assets);
 		
 		this.connectWebSocket();
 		
@@ -91,8 +87,6 @@ class game {
 			this.showLoadingScreen("Loading assets ...");
 			await sleep(200);
 		}
-		this.playerOne = new Player("top", "retreat", this.gameCanvas, this.playerOneHand, this.context, this.assets);
-		this.playerTwo = new Player("buttom", "attack", this.gameCanvas, this.playerTwoHand, this.context, this.assets);
 		
 		this.playerOne.initPlayer();
 		this.playerTwo.initPlayer();
@@ -101,7 +95,7 @@ class game {
 	connectWebSocket() {
 		this.socket.onopen = (e) => {
 			console.log("Connected to server");
-			// this.sendMessage("Hello, server!");
+			this.sendMessage("Hello, server!");
 		};
 	
 		this.socket.onmessage = (event) => {
@@ -440,7 +434,7 @@ class game {
 	}
 }
 
-export default game;
+export default onlineGame;
 
 	// if (event.key === "s") {
 	// 	if (this.playerOne.getState() == "attack") {
