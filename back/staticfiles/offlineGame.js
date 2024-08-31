@@ -17,8 +17,8 @@ class offlineGame extends game {
 			await sleep(200);
 		}
 
-		this.playerOne = new Player("top", "retreat", this.gameCanvas, this.playerOneHand, this.context, this.assets);
-		this.playerTwo = new Player("buttom", "attack", this.gameCanvas, this.playerTwoHand, this.context, this.assets);
+		this.playerOne = new Player("top", "retreat", this.gameCanvas, this.playerOneHand, this.context, this.assets, this);
+		this.playerTwo = new Player("buttom", "attack", this.gameCanvas, this.playerTwoHand, this.context, this.assets, this);
 		
 		this.playerOne.initPlayer();
 		this.playerTwo.initPlayer();

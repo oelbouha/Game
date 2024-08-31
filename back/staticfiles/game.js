@@ -237,7 +237,6 @@ class game {
 			this.topButton = this.topRetreatButton;
 			this.bottomButton = this.bottomAttackButton;
 		}
-
 		this.drawBackground();
 
 		this.drawScore();
@@ -251,18 +250,25 @@ class game {
 		this.drawButtons();
 	}
 
-	switchColors() {
+	async switchColors() {
+		console.log("switching roles ...");
+		await this.loadGame("switching Roles")
 		let temp = this.topBackgroundColor;
 		this.topBackgroundColor = this.bottomBackgroundColor;
 		this.bottomBackgroundColor = temp;
+		this.gameLoop();
 	}
 
 	handleKeyPress(event) {
 		const key = event.key;
 
-		if (key == "w" || key == "ArrowDown")
+		if (key == "w" && this.playerOne.state == "retreat")
 			this.handlePlayeAction("retreat", key)
-		else if (key == "s" || key == "ArrowUp")
+		else if (key == "ArrowDown" && this.playerTwo.state == "retreat")
+			this.handlePlayeAction("retreat", key)
+		else if (key == "s" && this.playerOne.state == "attack")
+			this.handlePlayeAction("attack", key)
+		else if (key == "ArrowUp" && this.playerTwo.state == "attack")
 			this.handlePlayeAction("attack", key)
 	}
 
@@ -273,15 +279,12 @@ class game {
 
 		console.log("clicked  ...");
         if (this.isButtonClicked(x, y, this.topButton)) {
-			console.log("clicked  ...", this.playerOne.win, this.playerTwo.win);
-			
 			if (this.playerOne.win || this.playerTwo.win) {
 				return this.handlePlayeAction("game over", "mouseTop");
 			}
 			this.handlePlayeAction(this.playerOne.state, "mouseTop");
 		}
 		if (this.isButtonClicked(x, y, this.bottomButton)) {
-			console.log("clicked  ...", this.playerOne.win, this.playerTwo.win);
 			if (this.playerOne.win || this.playerTwo.win) {
 				return this.handlePlayeAction("game over", "mouseButtom");
 			}

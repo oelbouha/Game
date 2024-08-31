@@ -1,5 +1,6 @@
 import CustomImage from "./image.js";
 import Hand from "./Hand.js";
+import game  from "./game.js";
 
 
 // Variables for shaking effect
@@ -7,9 +8,14 @@ let shakeDuration = 500; // Duration of the shake in milliseconds
 let shakeMagnitude = 10; // Magnitude of the shake
 let shakeTime = 0;
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 
 class Player {
-	constructor(position, initialRole, canvas, PlayerHandImage, context, assets) {
+	constructor(position, initialRole, canvas, PlayerHandImage, context, assets, game) {
+		this.game = game;
 		this.assets = assets;
 		this.context = context;
 		this.state = initialRole;
@@ -148,7 +154,8 @@ class Player {
 		cancelAnimationFrame(this.animationFrame);
 	}
 	
-	switchRoles() {
+	async switchRoles() {
+		await this.game.loadGame();
 		if (this.position === "top" && this.state === "attack") {
 			this.state = "retreat";
 			this.opponent.state = "attack";
@@ -166,6 +173,7 @@ class Player {
 			this.state = "attack";
 		}
 		this.isMissed = false;
+		this.game.gameLoop();
 	}
 
 	async handleHit() {
