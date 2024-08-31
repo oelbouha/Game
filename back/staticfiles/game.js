@@ -8,36 +8,15 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function loadGame(gameInstance) {
-    let message = "Loading game ... 0%";
-    gameInstance.showLoadingScreen(message);
-    for (let i = 0; i < 5; i++) {
-        message = `Loading game ... ${i * 20}%`;
-        gameInstance.showLoadingScreen(message);
-        await sleep(1000);
-    }
-    gameInstance.showLoadingScreen("Loading game ... 100%");
-    await sleep(500);
-    gameInstance.startGame();
-}
-
-class offlineGame {
-	constructor() {
-		
-	}
-}
-
-
 class game {
 	constructor() {
-		this.socket = new WebSocket('ws://127.0.0.1:8000/ws/game/');
 		this.gameCanvas = new game_Canvas();
 		this.context = this.gameCanvas.getContext();
 		this.canvas = this.gameCanvas.getCanvas();
-		this.offline = false;
 		this.canvas.tabIndex = 0;
-		this.gameOver = false;
 		this.canvas.focus();
+
+		this.isLoading = false;
 
 		this.winImage = new CustomImage(STATIC_URL + "/assets/winner.png");
 		this.loseImage = new CustomImage(STATIC_URL + "/assets/loser.png");
@@ -74,9 +53,6 @@ class game {
 
 		this.topBackgroundColor = "#FFA500";
 		this.bottomBackgroundColor = "#317AB3";
-
-		
-		this.connectWebSocket();
 		
 		this.cooldownPeriod = 800;
         this.playerOneLastActionTime = 0;
@@ -84,50 +60,16 @@ class game {
 		
 		this.waitForImagesToLoad();
 	}
-		
-	async initGame() {
-		
-		while (!this.waitForImagesToLoad()) {
-			this.showLoadingScreen("Loading assets ...");
-			await sleep(200);
+
+	async  loadGame(message) {
+		this.isLoading = true;
+		this.showLoadingScreen(message + " ... 0%");
+		for (let i = 0; i < 5; i++) {
+			this.showLoadingScreen(message + ` ... ${i * 20}%`);
+			await sleep(300);
 		}
-		this.playerOne = new Player("top", "retreat", this.gameCanvas, this.playerOneHand, this.context, this.assets);
-		this.playerTwo = new Player("buttom", "attack", this.gameCanvas, this.playerTwoHand, this.context, this.assets);
-		
-		this.playerOne.initPlayer();
-		this.playerTwo.initPlayer();
-	}
-
-	connectWebSocket() {
-		this.socket.onopen = (e) => {
-			console.log("Connected to server");
-			// this.sendMessage("Hello, server!");
-		};
-	
-		this.socket.onmessage = (event) => {
-			const data = JSON.parse(event.data);
-			// console.log(data);
-			const message = data.message;
-
-			if (message === "Start Game") {
-				loadGame(this);
-				return ;
-			}
-			// console.log("Received message from server: ", message);
-			this.handleServerMessage(message);
-		};
-	
-		this.socket.onerror = (error) => {
-			console.log("WebSocket Error: ", error);
-		};
-	
-		this.socket.onclose = (event) => {
-			if (event.wasClean) {
-				console.log(`Connection closed cleanly, code=${event.code}, reason=${event.reason}`);
-			} else {
-				console.log('Connection died');
-			}
-		};
+		this.showLoadingScreen(message + " ... 100%");
+		this.isLoading = false;
 	}
 
 	showLoadingScreen(message) {
@@ -137,37 +79,6 @@ class game {
 		this.context.font = '35px Arial';
 		this.context.textAlign = 'center';
 		this.context.fillText(message, this.canvas.width / 2, this.canvas.height / 2);
-	}
-
-	handleServerMessage(data) {
-		const action = data.action;
-		const player = data.player;
-
-		console.log("recieve message :", action, player);
-		if (action == "attack") {
-			if (player == "playerOne")
-				this.playerOne.startAnimation(action);
-			else
-				this.playerTwo.startAnimation(action);
-		}
-		if (action == "retreat" ) {
-			if (player == "playerOne") {
-				this.playerOne.startAnimation("retreat");
-			}
-			else {
-				this.playerTwo.startAnimation("retreat");
-			}
-		}
-		if (action == "reset")
-			this.reset();
-	}
-
-	sendMessage(message) {
-		if (this.socket.readyState === WebSocket.OPEN) {
-			this.socket.send(JSON.stringify({message: message}));
-		} else {
-			console.log("WebSocket is not open. Message not sent.");
-		}
 	}
 
 	waitForImagesToLoad() {
@@ -186,7 +97,7 @@ class game {
 		return false;
 	}
 
-	reset() {
+	async resetPlayers() {
 		this.clearCanvas();
 		if (this.playerTwo.win) {
 			this.playerOne.state = "attack";
@@ -214,13 +125,11 @@ class game {
 		this.playerOne.isPlayerRising = true;
 		this.playerTwo.isPlayerFalling = true;
 		this.playerTwo.isPlayerRising = true;
-		this.gameOver = false;
 	}
 
-	startGame() {
-		this.playerOne.setOpponent(this.playerTwo);
-		this.playerTwo.setOpponent(this.playerOne);
-
+	async gameOver() {
+		await this.resetPlayers();
+		await this.loadGame("restarting game");
 		this.gameLoop();
 	}
 
@@ -230,9 +139,10 @@ class game {
 			this.playerTwo.update();
 		}
 
-		this.drawAll();
-	
-		requestAnimationFrame(() => this.gameLoop());
+		if (this.isLoading == false) {
+			this.drawAll();
+			requestAnimationFrame(() => this.gameLoop());
+		}
 	}
 
 	drawBackground() {
@@ -347,47 +257,6 @@ class game {
 		this.bottomBackgroundColor = temp;
 	}
 
-	OfflineGame(action, key) {
-		const playerOneState = this.playerOne.getState();
-		const playerTwoState = this.playerTwo.getState();
-
-		this.playerOne.shouldAttack = key === "s" || key === "mouseTop" && playerOneState == "attack" ? true : false;
-		this.playerOne.shouldRetreat = key === "w" || key === "mouseTop" && playerOneState == "retreat" ? true : false;
-		
-		this.playerTwo.shouldAttack = key === "ArrowUp" || key === "mouseButtom" && playerTwoState == "attack" ? true : false;
-		this.playerTwo.shouldRetreat = key === "ArrowDown" || key === "mouseButtom" && playerTwoState == "retreat" ? true : false;
-
-		const attackPLayer = this.playerOne.getState() === "attack" ? this.playerOne : this.playerTwo;
-		const retreatPlayer = this.playerTwo.getState() === "retreat" ? this.playerTwo : this.playerOne;
-	
-		if (action == "attack")
-			return attackPLayer.startAnimation(action);
-		else if (action == "reset")
-			return this.reset();
-		else if (action == "retreat")
-			retreatPlayer.startAnimation(action);
-	}
-
-	OnlineGame(action, key) {
-		const player = key == "s" || key == "w" || key == "mouseTop" ? "playerOne": "playerTwo";
-		// console.log("player :: >" , player);
-		console.log("action ", action);
-		this.sendMessage({action: action, player: player});
-	}
-
-	handlePlayeAction(action, key) {
-		const currentTime = Date.now();
-
-		if (this.playerOne.isFrozen || this.playerTwo.isFrozen)
-			return ;
-
-		if (this.offline == true)
-			this.OfflineGame(action, key);
-		else if (this.offline == false)
-			this.OnlineGame(action, key);
-	}
-
-
 	handleKeyPress(event) {
 		const key = event.key;
 
@@ -395,22 +264,26 @@ class game {
 			this.handlePlayeAction("retreat", key)
 		else if (key == "s" || key == "ArrowUp")
 			this.handlePlayeAction("attack", key)
-		}
+	}
 
 	handleCanvasClick(event) {
         let rect = this.canvas.getBoundingClientRect();
         let x = event.pageX - rect.left;
         let y = event.pageY - rect.top;
 
+		console.log("clicked  ...");
         if (this.isButtonClicked(x, y, this.topButton)) {
+			console.log("clicked  ...", this.playerOne.win, this.playerTwo.win);
+			
 			if (this.playerOne.win || this.playerTwo.win) {
-				return this.handlePlayeAction("reset", "mouseTop");
+				return this.handlePlayeAction("game over", "mouseTop");
 			}
 			this.handlePlayeAction(this.playerOne.state, "mouseTop");
 		}
 		if (this.isButtonClicked(x, y, this.bottomButton)) {
+			console.log("clicked  ...", this.playerOne.win, this.playerTwo.win);
 			if (this.playerOne.win || this.playerTwo.win) {
-				return this.handlePlayeAction("reset", "mouseButtom");
+				return this.handlePlayeAction("game over", "mouseButtom");
 			}
 			this.handlePlayeAction(this.playerTwo.state, "mouseButtom");
         }
@@ -441,6 +314,7 @@ class game {
 }
 
 export default game;
+
 
 	// if (event.key === "s") {
 	// 	if (this.playerOne.getState() == "attack") {
@@ -477,5 +351,3 @@ export default game;
 	// 		}
 	// 	}
 	// }
-
-

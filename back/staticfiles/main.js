@@ -1,21 +1,6 @@
-import game from "./game.js";	
+import onlineGame from "./onlineGame.js";	
+import offlineGame from "./offlineGame.js";
 
-let gameInstance = new game();
+let gameInstance = new onlineGame();
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function initGame() {
-    console.log("Starting game load");
-
-    while (!gameInstance.waitForImagesToLoad()) {
-        gameInstance.showLoadingScreen("Loading assets ...");
-        await sleep(200);
-    }
-    gameInstance.initGame();
-    // gameInstance.startGame();
-}
-
-
-initGame();
+gameInstance.startGame();
