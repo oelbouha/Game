@@ -28,7 +28,7 @@ class offlineGame extends game {
 	}
 
 	async startGame() {
-		await this.loadGame("starting game");
+		await this.loadGame("starting game", 300);
 
 		await this.initGame();
 

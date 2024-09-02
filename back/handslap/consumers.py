@@ -7,10 +7,11 @@ class GameConsumer(AsyncWebsocketConsumer):
     index = 0
     async def connect(self):
         GameConsumer.connected_players.append(self)
-
         print ("Connected", len(GameConsumer.connected_players))
+
         if len (GameConsumer.connected_players) == 2:
             print("two  Players  connected")
+            
             self.room_name = f'game_{GameConsumer.index}'
             self.room_group_name = f'game_{GameConsumer.index}'
 
@@ -24,7 +25,8 @@ class GameConsumer(AsyncWebsocketConsumer):
                 self.room_group_name,
                 {
                     'type': 'game_message',
-                    'message': 'Start Game'
+                    'message': 'Start Game',
+                    
                 }
             )
             
@@ -38,7 +40,8 @@ class GameConsumer(AsyncWebsocketConsumer):
         await self.accept()
         
         await self.send(text_data=json.dumps({
-            'message': 'Connected'
+            'message': 'Connected',
+            'which_player': 'Player 1' if self.index % 2 else 'Player 2'
         }))
 
     async def disconnect(self, close_code):
@@ -73,9 +76,10 @@ class GameConsumer(AsyncWebsocketConsumer):
             print("Error")
 
     async def game_message(self, event):
-        message = event['message']
+        message = event.get('message')
+        which_player = event.get('which_player')
 
         # Send message to WebSocket
         await self.send(text_data=json.dumps({
-            'message': message
+            'message': message,
         }))

@@ -61,12 +61,12 @@ class game {
 		this.waitForImagesToLoad();
 	}
 
-	async  loadGame(message) {
+	async  loadGame(message, timeToSleep) {
 		this.isLoading = true;
 		this.showLoadingScreen(message + " ... 0%");
 		for (let i = 0; i < 5; i++) {
 			this.showLoadingScreen(message + ` ... ${i * 20}%`);
-			await sleep(300);
+			await sleep(timeToSleep);
 		}
 		this.showLoadingScreen(message + " ... 100%");
 		this.isLoading = false;
@@ -129,7 +129,7 @@ class game {
 
 	async gameOver() {
 		await this.resetPlayers();
-		await this.loadGame("restarting game");
+		await this.loadGame("Restarting Game", 300);
 		this.gameLoop();
 	}
 
@@ -251,17 +251,16 @@ class game {
 	}
 
 	async switchColors() {
-		console.log("switching roles ...");
-		await this.loadGame("switching Roles")
 		let temp = this.topBackgroundColor;
 		this.topBackgroundColor = this.bottomBackgroundColor;
 		this.bottomBackgroundColor = temp;
-		this.gameLoop();
 	}
 
 	handleKeyPress(event) {
 		const key = event.key;
 
+		if (this.playerOne.win || this.playerTwo.win)
+			return ;
 		if (key == "w" && this.playerOne.state == "retreat")
 			this.handlePlayeAction("retreat", key)
 		else if (key == "ArrowDown" && this.playerTwo.state == "retreat")
@@ -277,7 +276,6 @@ class game {
         let x = event.pageX - rect.left;
         let y = event.pageY - rect.top;
 
-		console.log("clicked  ...");
         if (this.isButtonClicked(x, y, this.topButton)) {
 			if (this.playerOne.win || this.playerTwo.win) {
 				return this.handlePlayeAction("game over", "mouseTop");

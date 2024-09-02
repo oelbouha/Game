@@ -9,13 +9,13 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-
 class onlineGame extends game {
 	constructor() {
 		super();
 		this.socket = new WebSocket('ws://127.0.0.1:8000/ws/game/');
 		this.start_game = false;
-		
+		this.isPlayerOne = false;
+		this.isPlayerTwo = false;
 		this.connectWebSocket();
 	}
 
@@ -26,13 +26,13 @@ class onlineGame extends game {
 			await sleep(200);
 		}
 		while (!this.start_game) {
-			this.showLoadingScreen("Waiting for other player ...");
+			this.showLoadingScreen("Waiting For Other Player ...");
 			await sleep(200);
 		}
 
 		this.playerOne = new Player("top", "retreat", this.gameCanvas, this.playerOneHand, this.context, this.assets, this);
 		this.playerTwo = new Player("buttom", "attack", this.gameCanvas, this.playerTwoHand, this.context, this.assets, this);
-		
+
 		this.playerOne.initPlayer();
 		this.playerTwo.initPlayer();
 
@@ -42,7 +42,7 @@ class onlineGame extends game {
 
 	async startGame() {
 		await this.initGame();
-		await this.loadGame("starting game");
+		await this.loadGame("starting game", 300);
 		this.gameLoop();
 	}
 
@@ -51,17 +51,24 @@ class onlineGame extends game {
 			console.log("Connected to server");
 			// this.sendMessage("Hello, server!");
 		};
-	
+		
 		this.socket.onmessage = (event) => {
 			const data = JSON.parse(event.data);
 			// console.log(data);
+
+			const whichPlayer = data.which_player;
 			const message = data.message;
 
+			if (whichPlayer == "Player 1")
+				this.isPlayerOne = true;
+			if (whichPlayer == "Player 2")
+				this.isPlayerTwo = true;
+			
 			if (message === "Start Game") {
 				this.start_game = true;
+				// console.log ("which player : ", this.playerOne, this.playerTwo);
 				return ;
 			}
-			// console.log("Received message from server: ", message);
 			this.handleServerMessage(message);
 		};
 	
@@ -82,7 +89,7 @@ class onlineGame extends game {
 		const action = data.action;
 		const player = data.player;
 
-		console.log("recieve message :", action, player);
+		// console.log("recieve message :", action, player);
 		if (action == "attack") {
 			if (player == "playerOne")
 				this.playerOne.startAnimation(action);
@@ -121,28 +128,43 @@ class onlineGame extends game {
 		this.sendMessage({action: action, player: player});
 	}
 
-	drawScore() {
-		const	margin = 10;
-		const	fontSize = 50;
-		const	scoreX = this.gameCanvas.getCanvasWidth() - 100;
-		const	canvasCenter = this.gameCanvas.getCanvasHeight() / 2 - margin;
+	handleKeyPress(event) {
+		const key = event.key;
 
-		this.context.font = "50px Arial";
-		this.context.fillStyle = "white";
-		this.context.fillText(this.playerOne.score, scoreX, canvasCenter - 50 - margin);
-		this.context.fillText(this.playerTwo.score, scoreX, canvasCenter + 50  + fontSize);
+		if (this.playerOne.win || this.playerTwo.win)
+			return ;
+		
+		console.log("key :: ", key, "player ::", this.isPlayerOne, this.isPlayerTwo);
+
+		if (key == "w" && this.playerOne.state == "retreat" && this.isPlayerOne)
+			this.handlePlayeAction("retreat", key)
+		else if (key == "ArrowDown" && this.playerTwo.state == "retreat" && this.isPlayerTwo)
+			this.handlePlayeAction("retreat", key)
+	
+		else if (key == "s" && this.playerOne.state == "attack" && this.isPlayerOne)
+			this.handlePlayeAction("attack", key)
+		else if (key == "ArrowUp" && this.playerTwo.state == "attack" && this.isPlayerTwo)
+			this.handlePlayeAction("attack", key)
 	}
 
-	isButtonClicked(x, y, image) {
-		let imgX = image.x < 0 ? 0 : image.x;
-		let imgY = image.y < 0 ? 0 : image.y;
-		let res = x >= imgX && x <= imgX + image.width && y >= imgY && y <= imgY + image.height;
-		return res;
-	}
+	handleCanvasClick(event) {
+        let rect = this.canvas.getBoundingClientRect();
+        let x = event.pageX - rect.left;
+        let y = event.pageY - rect.top;
 
-	getCanvas() {
-		return this.canvas;
-	}
+        if (this.isButtonClicked(x, y, this.topButton) && this.isPlayerOne) {
+			if (this.playerOne.win || this.playerTwo.win) {
+				return this.handlePlayeAction("game over", "mouseTop");
+			}
+			this.handlePlayeAction(this.playerOne.state, "mouseTop");
+		}
+		if (this.isButtonClicked(x, y, this.bottomButton) && this.isPlayerTwo) {
+			if (this.playerOne.win || this.playerTwo.win) {
+				return this.handlePlayeAction("game over", "mouseButtom");
+			}
+			this.handlePlayeAction(this.playerTwo.state, "mouseButtom");
+        }
+    }
 }
 
 export default onlineGame;

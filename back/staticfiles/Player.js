@@ -155,7 +155,7 @@ class Player {
 	}
 	
 	async switchRoles() {
-		await this.game.loadGame();
+		await this.game.loadGame("Switching Roles", 50);
 		if (this.position === "top" && this.state === "attack") {
 			this.state = "retreat";
 			this.opponent.state = "attack";
@@ -212,7 +212,6 @@ class Player {
 				} else {
 					this.isPlayerRising = true;
 				}
-	
 				// Check for win condition after animation is complete
 				if (this.score >= this.maxScore) {
 					this.win = true;
