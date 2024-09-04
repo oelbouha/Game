@@ -104,7 +104,7 @@ class onlineGame extends game {
 				this.playerTwo.startAnimation("retreat");
 			}
 		}
-		if (action == "game over")
+		if (action == "Rematch")
 			await this.gameOver();
 	}
 
@@ -124,7 +124,6 @@ class onlineGame extends game {
 
 		const whichPlayer = player == "playerOne" ? this.playerOne : this.playerTwo;
 
-		// console.log("action ", action);
 		this.sendMessage({action: action, player: player});
 	}
 
@@ -134,7 +133,7 @@ class onlineGame extends game {
 		if (this.playerOne.win || this.playerTwo.win)
 			return ;
 		
-		console.log("key :: ", key, "player ::", this.isPlayerOne, this.isPlayerTwo);
+		// console.log("key :: ", key, "player ::", this.isPlayerOne, this.isPlayerTwo);
 
 		if (key == "w" && this.playerOne.state == "retreat" && this.isPlayerOne)
 			this.handlePlayeAction("retreat", key)
@@ -154,13 +153,13 @@ class onlineGame extends game {
 
         if (this.isButtonClicked(x, y, this.topButton) && this.isPlayerOne) {
 			if (this.playerOne.win || this.playerTwo.win) {
-				return this.handlePlayeAction("game over", "mouseTop");
+				return this.handlePlayeAction("Rematch", "mouseTop");
 			}
 			this.handlePlayeAction(this.playerOne.state, "mouseTop");
 		}
 		if (this.isButtonClicked(x, y, this.bottomButton) && this.isPlayerTwo) {
 			if (this.playerOne.win || this.playerTwo.win) {
-				return this.handlePlayeAction("game over", "mouseButtom");
+				return this.handlePlayeAction("Rematch", "mouseButtom");
 			}
 			this.handlePlayeAction(this.playerTwo.state, "mouseButtom");
         }

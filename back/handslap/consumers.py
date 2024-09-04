@@ -25,11 +25,9 @@ class GameConsumer(AsyncWebsocketConsumer):
                 self.room_group_name,
                 {
                     'type': 'game_message',
-                    'message': 'Start Game',
-                    
+                    'message': 'Start Game'
                 }
             )
-            
             GameConsumer.connected_players = []
             GameConsumer.index += 1
 
@@ -77,8 +75,6 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def game_message(self, event):
         message = event.get('message')
-        which_player = event.get('which_player')
-
         # Send message to WebSocket
         await self.send(text_data=json.dumps({
             'message': message,

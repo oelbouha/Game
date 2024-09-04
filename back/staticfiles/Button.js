@@ -35,6 +35,7 @@ class Button {
 		const textYpos = ypos + this.height / 2;
 		context.fillText(this.text, textXpos, textYpos);
 	}
+
 	isClicked(x, y) {
 		const canvasWidth = context.canvas.width;
 		const canvasHeight = context.canvas.height;

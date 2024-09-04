@@ -8,14 +8,30 @@
 </head>
 <body>
 	<div id="game">
+		<div id="gameFront">
+
+			<div id="playerContainer">
+				<div id = "imagesContainer" >
+					<button id="prevBtn"> prev </button>
+					<div id = "playerHandImageContainer">
+						<img id="playerHandImage" src="{% static 'assets/hand.png' %}" alt="Player Hand">
+					</div>
+					<button id="nextBtn"> next </button>
+				</div>
+				<div id = "readyBtnContainer">
+					<button id="readyBtn"> Ready </button>
+				</div>
+			</div>
 		
+		</div>
+		<div id="canvasContainer">
+			<canvas width="1200" height="1000" id="gameCanvas"></canvas>
+		</div>
 	</div>
-	<div id="canvasContainer">
-		<canvas width="1200" height="1000" id="gameCanvas"></canvas>
-	</div>
+
 	<script>
 		var STATIC_URL = "{% static '' %}";
 	</script>
-	<script type="module" src="{% static 'main.js' %}"></script>
+	<script type="module" src="{% static 'main.js' %}"> </script>
 </body>
 </html>
