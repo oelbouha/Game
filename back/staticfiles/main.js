@@ -21,12 +21,19 @@ const handImages = [
 	STATIC_URL + "/assets/hands/hand16.png"
 ]
 
-let playerHandImage = document.getElementById("playerHandImage");
 
+const playerHandImage = document.getElementById("playerHandImage");
+const readybtn = document.getElementById("readyBtn");
+
+const playerText = document.getElementById("playerText");
+const fronDiv = document.getElementById("gameFront");
 
 const nextBtn = document.getElementById("nextBtn");
 const prevBtn = document.getElementById("prevBtn");
 
+
+let  playerTwoHnad = null;
+let  playerOneHnad = null;
 
 let index = 0;
 
@@ -50,63 +57,29 @@ prevBtn.addEventListener('click', function () {
 	updateImage("player one");
 });
 
+function	startGame() {
+	fronDiv.style.display = 'none';
+	let offline_game = new offlineGame(playerOneHnad, playerTwoHnad);
+	offline_game.startGame();
+}
 
+function	setupPlayerOneHand() {
+	playerText.textContent = "Choose Player One Hand";
+	readybtn.addEventListener('click', function() {
+		playerOneHnad = handImages[index];
+		setupPlayerTwoHand();
+	}, {once: true});
+}
 
+function setupPlayerTwoHand() {
+	playerText.textContent = "Choose Player Two Hand";
+	index = 0;
+	updateImage();
+	readybtn.addEventListener('click', function() {
+		playerTwoHnad = handImages[index];
+		startGame();
+	}, {once: true});
+}
 
-let gameInstance = new offlineGame();
+setupPlayerOneHand();
 
-gameInstance.startGame();
-
-
-
-
-// const playerOneNextBtn = document.getElementById("playerOneNextButton");
-// const playerOnePrevBtn = document.getElementById("playeronePreviousButton");
-
-// const playerTwoNextBtn = document.getElementById("playerTwoNextButton");
-// const playerTwoPrevBtn = document.getElementById("playerTwoPreviousButton");
-
-
-// let index = 0;
-// let playerTwoIndex = 0;
-
-// console.log("image > ", handImages[0]);
-
-// function updateImage(player) {
-// 	if (player == "player one") {
-// 		console.log("src :: ", playerOneImage.src , index, handImages.length);
-// 		playerOneImage.src = handImages[index];
-// 		console.log("src :: ", playerOneImage.src);
-// 	}
-// 	else {
-// 		playerTwoImage.src = handImages[playerTwoIndex];
-// 	}
-// }
-
-// playerOneNextBtn.addEventListener('click', function () {
-// 	++index;
-// 	if (index > handImages.length)
-// 		index = handImages.length;
-// 	updateImage("player one");
-// });
-
-// playerOnePrevBtn.addEventListener('click', function () {
-// 	--index;
-// 	if (index < 0)
-// 	index = 0;
-// updateImage("player one");
-// });
-
-// playerTwoNextBtn.addEventListener('click', function () {
-// 	++playerTwoIndex;
-// 	if (index > handImages.length)
-// 		index = handImages.length;
-// 	updateImage("player two");
-// });
-
-// playerTwoPrevBtn.addEventListener('click', function () {
-// 	--playerTwoIndex;
-// 	if (index < 0)
-// 		index = 0;
-// 	updateImage("player two");
-// });

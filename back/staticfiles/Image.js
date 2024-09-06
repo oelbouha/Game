@@ -30,13 +30,24 @@ class CustomImage {
 	getHeight() {
 		return this.height;
 	}
+
+    rotateAndPaintImage ( context, image, angleInRad , positionX, positionY, axisX, axisY ) {
+        context.translate( positionX, positionY );
+        context.rotate( angleInRad );
+        context.drawImage( image, -axisX, -axisY );
+        context.rotate( -angleInRad );
+        context.translate( -positionX, -positionY );
+    }
 	
-    draw(context, x, y) {
+    draw(context, x, y, rotate = false) {
         this.x = x;
         this.y = y;
-
+        
         if (this.loaded) {
-            context.drawImage(this.img, this.x, this.y, this.width, this.height);
+            if (rotate)
+                this.rotateAndPaintImage ( context, this.img, 3.14 , x, y, this.width, this.height);
+            else
+                context.drawImage(this.img, this.x, this.y, this.width, this.height);
         } else {
             this.onLoadCallback = () => {
                 context.drawImage(this.img, this.x, this.y, this.width, this.height);

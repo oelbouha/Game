@@ -9,7 +9,7 @@ function sleep(ms) {
 }
 
 class game {
-	constructor() {
+	constructor(playerOneHand, playerTwoHand) {
 		this.gameCanvas = new game_Canvas();
 		this.context = this.gameCanvas.getContext();
 		this.canvas = this.gameCanvas.getCanvas();
@@ -22,8 +22,8 @@ class game {
 		this.loseImage = new CustomImage(STATIC_URL + "/assets/loser.png");
 
 		this.effectImage = new CustomImage(STATIC_URL + "/assets/slap-effect.png");
-		this.playerOneHand = new CustomImage(STATIC_URL + "/assets/hand.png");
-		this.playerTwoHand = new CustomImage(STATIC_URL + "/assets/player-two-hand.png");
+		this.playerOneHand = new CustomImage(playerOneHand);
+		this.playerTwoHand = new CustomImage(playerTwoHand);
 
 		this.topAttackButton = new CustomImage(STATIC_URL + "/assets/topattack.png");
 		this.bottomAttackButton = new CustomImage(STATIC_URL + "/assets/attack-green.png");
@@ -194,10 +194,10 @@ class game {
 		
 		if (this.playerOne.state === "attack") {
 			this.playerOneHand.draw(this.context, playerOneHandX, playerOneHandY);
-			this.playerTwoHand.draw(this.context, playerTwoHandX, playerTwoHandY);
+			this.playerTwoHand.draw(this.context, playerTwoHandX, playerTwoHandY, true);
 		}
 		else {
-			this.playerTwoHand.draw(this.context, playerTwoHandX, playerTwoHandY);
+			this.playerTwoHand.draw(this.context, playerTwoHandX, playerTwoHandY, true);
 			this.playerOneHand.draw(this.context, playerOneHandX, playerOneHandY);
 		}
 	}

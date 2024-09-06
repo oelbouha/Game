@@ -88,3 +88,11 @@ body, html {
 	border: none;
 	background-color: #cef3cf;
 }
+
+
+#playerText {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 20px;
+	color: white;
+	z-index: 5;
+}

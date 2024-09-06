@@ -4,10 +4,14 @@ import Player from './Player.js';
 import game from './game.js'
 
 
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 class offlineGame extends game {
-	constructor() {
-		super();
+	constructor(playerOneHand, playerTwoHand) {
+
+		super(playerOneHand, playerTwoHand);
 	}
 
 	async initGame() {
