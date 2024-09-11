@@ -21,7 +21,6 @@ const handImages = [
 	STATIC_URL + "/assets/hands/hand16.png"
 ]
 
-
 const playerHandImage = document.getElementById("playerHandImage");
 const readybtn = document.getElementById("readyBtn");
 
@@ -57,29 +56,34 @@ prevBtn.addEventListener('click', function () {
 	updateImage("player one");
 });
 
-function	startGame() {
-	fronDiv.style.display = 'none';
-	let offline_game = new offlineGame(playerOneHnad, playerTwoHnad);
-	offline_game.startGame();
+function startOffline() {
+	function	startGame() {
+		fronDiv.style.display = 'none';
+		let offline_game = new offlineGame(playerOneHnad, playerTwoHnad);
+		offline_game.startGame();
+	}
+
+	function	setupPlayerOneHand() {
+		playerText.textContent = "Choose Player One Hand";
+		readybtn.addEventListener('click', function() {
+			playerOneHnad = handImages[index];
+			setupPlayerTwoHand();
+		}, {once: true});
+	}
+
+	function setupPlayerTwoHand() {
+		playerText.textContent = "Choose Player Two Hand";
+		index = 0;
+		updateImage();
+		readybtn.addEventListener('click', function() {
+			playerTwoHnad = handImages[index];
+			startGame();
+		}, {once: true});
+	}
+
+	setupPlayerOneHand();
 }
 
-function	setupPlayerOneHand() {
-	playerText.textContent = "Choose Player One Hand";
-	readybtn.addEventListener('click', function() {
-		playerOneHnad = handImages[index];
-		setupPlayerTwoHand();
-	}, {once: true});
-}
-
-function setupPlayerTwoHand() {
-	playerText.textContent = "Choose Player Two Hand";
-	index = 0;
-	updateImage();
-	readybtn.addEventListener('click', function() {
-		playerTwoHnad = handImages[index];
-		startGame();
-	}, {once: true});
-}
-
-setupPlayerOneHand();
-
+// startOffline();
+let online_game = new onlineGame();
+online_game.startGame();

@@ -9,7 +9,7 @@ function sleep(ms) {
 }
 
 class game {
-	constructor(playerOneHand, playerTwoHand) {
+	constructor(playerOneHand = null, playerTwoHand = null) {
 		this.gameCanvas = new game_Canvas();
 		this.context = this.gameCanvas.getContext();
 		this.canvas = this.gameCanvas.getCanvas();
@@ -22,8 +22,11 @@ class game {
 		this.loseImage = new CustomImage(STATIC_URL + "/assets/loser.png");
 
 		this.effectImage = new CustomImage(STATIC_URL + "/assets/slap-effect.png");
-		this.playerOneHand = new CustomImage(playerOneHand);
-		this.playerTwoHand = new CustomImage(playerTwoHand);
+		console.log(playerOneHand)
+		if (playerOneHand)
+			this.playerOneHand = new CustomImage(playerOneHand);
+		if (playerTwoHand)
+			this.playerTwoHand = new CustomImage(playerTwoHand);
 
 		this.topAttackButton = new CustomImage(STATIC_URL + "/assets/topattack.png");
 		this.bottomAttackButton = new CustomImage(STATIC_URL + "/assets/attack-green.png");
@@ -37,7 +40,7 @@ class game {
 		this.playerOneAttackButton = new CustomImage(STATIC_URL + "/assets/attack-green.png");
 		this.playerTwoAttackButton = new CustomImage(STATIC_URL + "/assets/attack-blue.png");
 		
-		this.assets = [this.winImage, this.loseImage, this.effectImage, this.playerOneHand, this.playerTwoHand, this.topAttackButton, this.bottomAttackButton, this.topRetreatButton, this.bottomRetreatButton, this.playerOneAttackButton, this.playerTwoAttackButton];
+		this.assets = [this.winImage, this.loseImage, this.effectImage, this.topAttackButton, this.bottomAttackButton, this.topRetreatButton, this.bottomRetreatButton, this.playerOneAttackButton, this.playerTwoAttackButton];
 		
 		this.handleCanvasClick = this.handleCanvasClick.bind(this);
 		this.handleKeyPress = this.handleKeyPress.bind(this);
@@ -53,12 +56,22 @@ class game {
 
 		this.topBackgroundColor = "#FFA500";
 		this.bottomBackgroundColor = "#317AB3";
-		
+
 		this.cooldownPeriod = 800;
         this.playerOneLastActionTime = 0;
         this.playerTwoLastActionTime = 0;
-		
+
 		this.waitForImagesToLoad();
+	}
+
+	setPlayerOneHand(hand) {
+		console.log("setting player one hand", hand);
+		this.playerOneHand = new CustomImage(hand);
+	}
+	
+	setPlayerTwoHand(hand) {
+		console.log("setting player two hand", hand);
+		this.playerTwoHand = new CustomImage(hand);
 	}
 
 	async  loadGame(message, timeToSleep) {

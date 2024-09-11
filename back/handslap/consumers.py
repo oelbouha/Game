@@ -55,6 +55,8 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         try:
             text_data_json = json.loads(text_data)
+            print("text data: ", text_data)
+            print("Received: ", text_data_json)
             message = text_data_json['message']
             # print("Received: ", message)
             # print("Sending: ", message)
@@ -68,13 +70,14 @@ class GameConsumer(AsyncWebsocketConsumer):
                 )
             else:
                 await self.send(text_data=json.dumps({
-                    'message': 'Waiting for other player'
+                    'message': "wating for other player",
                 }))
         except:
             print("Error")
 
     async def game_message(self, event):
         message = event.get('message')
+        # print("Sending: ", message)
         # Send message to WebSocket
         await self.send(text_data=json.dumps({
             'message': message,
