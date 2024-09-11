@@ -66,19 +66,17 @@ class onlineGame extends game {
 		this.socket = new WebSocket('ws://127.0.0.1:8000/ws/game/');
 		this.start_game = false;
 		this.ready = false;
-		this.init_game = false;
 		this.isPlayerOne = false;
 		this.isPlayerTwo = false;
 		this.playerOneHand = null;
 		this.playerTwoHand = null;
 		this.connectWebSocket();
-		
 	}
 
 	async setupHands() {
 		while (!this.start_game) {
-			this.showLoadingScreen("Waiting For Other Player ...");
-			await sleep(200);
+			this.showLoadingScreen("Waiting For other Player ...");
+			await sleep(100);
 		}
 
 		// setup hands for player ..
@@ -87,7 +85,6 @@ class onlineGame extends game {
 			playerText.textContent = "Choose Player One Hand";
 			readybtn.addEventListener('click', function() {
 				playerOneHnad = handImages[index];
-				console.log("setting up player one ...", playerOneHnad);
 				fronDiv.style.display = 'none';
 			}, {once: true});
 		}
@@ -169,10 +166,6 @@ class onlineGame extends game {
 				this.start_game = true;
 				return ;
 			}
-			if (message === "init Game") {
-				this.init_game = true;
-				return ;
-			}
 			this.handleServerMessage(message);
 		};
 	
@@ -198,33 +191,25 @@ class onlineGame extends game {
 		
 		if (action == "attack") {
 			if (player == "playerOne")
-			this.playerOne.startAnimation(action);
-		else
-		this.playerTwo.startAnimation(action);
-	}
-	if (action == "retreat" ) {
-		if (player == "playerOne") {
-			this.playerOne.startAnimation("retreat");
+				this.playerOne.startAnimation(action);
+			else
+				this.playerTwo.startAnimation(action);
 		}
-		else {
-			this.playerTwo.startAnimation("retreat");
+		if (action == "retreat" ) {
+			if (player == "playerOne")
+				this.playerOne.startAnimation("retreat");
+			else
+				this.playerTwo.startAnimation("retreat");
 		}
-	}
-	if (action == "Rematch")
-		await this.gameOver();
+		if (action == "Rematch")
+			await this.gameOver();
 		if (action == "chose hand") {
-	
-		console.log("received ::", data);
-			if (player == "player one") {
+			if (player == "player one")
 				this.playerOneHand = hand;
-				// console.log("player one hand ", this.playerOneHand);
-			}
-			else if (player == "player two") {
+			else if (player == "player two")
 				this.playerTwoHand = hand;
-				// console.log("player two hand ", this.playerTwoHand);
-			}
-		if (this.playerOneHand && this.playerTwoHand)
-			this.ready = true;
+			if (this.playerOneHand && this.playerTwoHand)
+				this.ready = true;
 		}
 	}
 
@@ -243,8 +228,6 @@ class onlineGame extends game {
 
 		const player = key == "s" || key == "w" || key == "mouseTop" ? "playerOne": "playerTwo";
 
-		const whichPlayer = player == "playerOne" ? this.playerOne : this.playerTwo;
-
 		this.sendMessage({action: action, player: player});
 	}
 
@@ -253,14 +236,11 @@ class onlineGame extends game {
 
 		if (this.playerOne.win || this.playerTwo.win)
 			return ;
-		
-		// console.log("key :: ", key, "player ::", this.isPlayerOne, this.isPlayerTwo);
 
 		if (key == "w" && this.playerOne.state == "retreat" && this.isPlayerOne)
 			this.handlePlayeAction("retreat", key)
 		else if (key == "ArrowDown" && this.playerTwo.state == "retreat" && this.isPlayerTwo)
 			this.handlePlayeAction("retreat", key)
-	
 		else if (key == "s" && this.playerOne.state == "attack" && this.isPlayerOne)
 			this.handlePlayeAction("attack", key)
 		else if (key == "ArrowUp" && this.playerTwo.state == "attack" && this.isPlayerTwo)
@@ -273,15 +253,13 @@ class onlineGame extends game {
         let y = event.pageY - rect.top;
 
         if (this.isButtonClicked(x, y, this.topButton) && this.isPlayerOne) {
-			if (this.playerOne.win || this.playerTwo.win) {
+			if (this.playerOne.win || this.playerTwo.win)
 				return this.handlePlayeAction("Rematch", "mouseTop");
-			}
 			this.handlePlayeAction(this.playerOne.state, "mouseTop");
 		}
 		if (this.isButtonClicked(x, y, this.bottomButton) && this.isPlayerTwo) {
-			if (this.playerOne.win || this.playerTwo.win) {
+			if (this.playerOne.win || this.playerTwo.win)
 				return this.handlePlayeAction("Rematch", "mouseButtom");
-			}
 			this.handlePlayeAction(this.playerTwo.state, "mouseButtom");
         }
     }

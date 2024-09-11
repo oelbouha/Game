@@ -22,7 +22,6 @@ class game {
 		this.loseImage = new CustomImage(STATIC_URL + "/assets/loser.png");
 
 		this.effectImage = new CustomImage(STATIC_URL + "/assets/slap-effect.png");
-		console.log(playerOneHand)
 		if (playerOneHand)
 			this.playerOneHand = new CustomImage(playerOneHand);
 		if (playerTwoHand)
@@ -65,12 +64,10 @@ class game {
 	}
 
 	setPlayerOneHand(hand) {
-		console.log("setting player one hand", hand);
 		this.playerOneHand = new CustomImage(hand);
 	}
 	
 	setPlayerTwoHand(hand) {
-		console.log("setting player two hand", hand);
 		this.playerTwoHand = new CustomImage(hand);
 	}
 
@@ -128,6 +125,8 @@ class game {
 			this.topButton = this.topRetreatButton;
 			this.bottomButton = this.bottomAttackButton;
 		}
+		this.playerOne.hand.currentY = this.playerOne.hand.initialY;
+		this.playerTwo.hand.currentY = this.playerTwo.hand.initialY;
 		this.playerOne.score = 0;
 		this.playerTwo.score = 0;
 		this.playerOne.win = false;
@@ -142,7 +141,7 @@ class game {
 
 	async gameOver() {
 		await this.resetPlayers();
-		await this.loadGame("Restarting Game", 300);
+		await this.loadGame("Restarting Game", 400);
 		this.gameLoop();
 	}
 
@@ -203,7 +202,7 @@ class game {
 		let playerTwoHandY = this.playerOne.getHandCurrentY();
 		
 		let playerOneHandX = this.gameCanvas.getCenterX(this.playerOneHand.width);
-		let playerOneHandY = this.playerTwo.getHandCurrentY();
+		let playerOneHandY = this.playerTwo.getHandCurrentY()
 		
 		if (this.playerOne.state === "attack") {
 			this.playerOneHand.draw(this.context, playerOneHandX, playerOneHandY);
