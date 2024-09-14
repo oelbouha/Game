@@ -64,11 +64,11 @@ class game {
 	}
 
 	setPlayerOneHand(hand) {
-		this.playerOneHand = new CustomImage(hand);
+		this.playerOneHand = hand;
 	}
 	
 	setPlayerTwoHand(hand) {
-		this.playerTwoHand = new CustomImage(hand);
+		this.playerTwoHand = hand;
 	}
 
 	async  loadGame(message, timeToSleep) {
@@ -125,8 +125,8 @@ class game {
 			this.topButton = this.topRetreatButton;
 			this.bottomButton = this.bottomAttackButton;
 		}
-		this.playerOne.hand.currentY = this.playerOne.hand.initialY;
-		this.playerTwo.hand.currentY = this.playerTwo.hand.initialY;
+		this.playerOne.handCurrentY = this.playerOne.hand.getInitialY();
+		this.playerTwo.handCurrentY = this.playerTwo.hand.getInitialY();
 		this.playerOne.score = 0;
 		this.playerTwo.score = 0;
 		this.playerOne.win = false;
@@ -137,6 +137,9 @@ class game {
 		this.playerOne.isPlayerRising = true;
 		this.playerTwo.isPlayerFalling = true;
 		this.playerTwo.isPlayerRising = true;
+		this.isLoading = false;
+		this.playerOne.isFrozen = false;
+		this.playerTwo.isFrozen = false;
 	}
 
 	async gameOver() {

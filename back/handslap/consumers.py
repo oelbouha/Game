@@ -55,11 +55,9 @@ class GameConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         try:
             text_data_json = json.loads(text_data)
-            print("text data: ", text_data)
-            print("Received: ", text_data_json)
+            # print("text data: ", text_data)
+            # print("Received: ", text_data_json)
             message = text_data_json['message']
-            # print("Received: ", message)
-            # print("Sending: ", message)
             if self.room_group_name:
                 await self.channel_layer.group_send(
                     self.room_group_name,

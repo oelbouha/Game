@@ -3,11 +3,11 @@ import offlineGame from "./offlineGame.js";
 
 
 const handImages = [
+	STATIC_URL + "/assets/hands/hand5.png",
 	STATIC_URL + "/assets/hands/hand1.png",
 	STATIC_URL + "/assets/hands/hand2.png",
 	STATIC_URL + "/assets/hands/hand3.png",
 	STATIC_URL + "/assets/hands/hand4.png",
-	STATIC_URL + "/assets/hands/hand5.png",
 	STATIC_URL + "/assets/hands/hand6.png",
 	STATIC_URL + "/assets/hands/hand7.png",
 	STATIC_URL + "/assets/hands/hand8.png",
@@ -51,7 +51,7 @@ nextBtn.addEventListener('click', function () {
 prevBtn.addEventListener('click', function () {
 	--index;
 	if (index < 0)
-	index = 0;
+		index = 0;
 	console.log("changig image to : prev image -> ", index);
 	updateImage("player one");
 });
@@ -59,7 +59,7 @@ prevBtn.addEventListener('click', function () {
 function startOffline() {
 	function	startGame() {
 		fronDiv.style.display = 'none';
-		let offline_game = new offlineGame(playerOneHnad, playerTwoHnad);
+		let offline_game = new offlineGame(playerTwoHnad, playerOneHnad);
 		offline_game.startGame();
 	}
 
@@ -84,6 +84,6 @@ function startOffline() {
 	setupPlayerOneHand();
 }
 
-// startOffline();
-let online_game = new onlineGame();
-online_game.startGame();
+startOffline();
+// let online_game = new onlineGame();
+// online_game.startGame();

@@ -8,7 +8,10 @@ class Hand {
 		this.initialY = -(this.PlayerHandImage.getHeight() / 2);
 		if (state === "buttom")
 			this.initialY = canvasHeight - (this.PlayerHandImage.getHeight() / 2);
+		this.firstY = this.initialY;
 		this.currentY = this.initialY;
+
+		// console.log("first time y is ==> ", this.initialY);
 	}
 
 	getWidth() {
@@ -26,7 +29,7 @@ class Hand {
 		return this.currentY;
 	}
 	getInitialY() {
-		return this.initialY;
+		return this.firstY;
 	}
 	setcurrentY(y) {
 		this.currentY = y;

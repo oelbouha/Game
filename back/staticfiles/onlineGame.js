@@ -116,16 +116,21 @@ class onlineGame extends game {
 	async initGame() {
 		while (!this.ready) {
 			await sleep(300);
-		}
-
-		let playerOneHand = new CustomImage(this.playerOneHand);
-		let playerTwoHand = new CustomImage(this.playerTwoHand);
-
+		} 
+		
+		console.log("player one hand : ", this.playerOneHand);
+		
+		const playerOne = new CustomImage(this.playerOneHand);
+		const playerTwo = new CustomImage(this.playerTwoHand);
+		
 		// this sleep is for image to load and then use it || fix it
 		await sleep(200);
+
+		super.setPlayerOneHand(playerTwo);
+		super.setPlayerTwoHand(playerOne);
 	
-		this.playerOne = new Player("top", "retreat", this.gameCanvas, playerOneHand, this.context, this.assets, this);
-		this.playerTwo = new Player("buttom", "attack", this.gameCanvas, playerTwoHand, this.context, this.assets, this);
+		this.playerOne = new Player("top", "retreat", this.gameCanvas, playerOne, this.context, this.assets, this);
+		this.playerTwo = new Player("buttom", "attack", this.gameCanvas, playerTwo, this.context, this.assets, this);
 	
 		this.playerOne.initPlayer();
 		this.playerTwo.initPlayer();
@@ -133,8 +138,6 @@ class onlineGame extends game {
 		this.playerOne.setOpponent(this.playerTwo);
 		this.playerTwo.setOpponent(this.playerOne);
 
-		super.setPlayerOneHand(this.playerOneHand);
-		super.setPlayerTwoHand(this.playerTwoHand);
 
 	}
 	
@@ -187,22 +190,22 @@ class onlineGame extends game {
 		const player = data.player;
 		const hand = data.hand;
 
-		// console.log("recieve message :", action, player);
+		console.log("recieve message :", action, player);
 		
 		if (action == "attack") {
 			if (player == "playerOne")
 				this.playerOne.startAnimation(action);
-			else
-				this.playerTwo.startAnimation(action);
+			else if (player === "playerTwo")
+			this.playerTwo.startAnimation(action);
 		}
 		if (action == "retreat" ) {
 			if (player == "playerOne")
 				this.playerOne.startAnimation("retreat");
-			else
-				this.playerTwo.startAnimation("retreat");
+			else if (player === "playerTwo")
+					this.playerTwo.startAnimation("retreat");
 		}
 		if (action == "Rematch")
-			await this.gameOver();
+			await this.gameOver(player);
 		if (action == "chose hand") {
 			if (player == "player one")
 				this.playerOneHand = hand;
@@ -263,6 +266,41 @@ class onlineGame extends game {
 			this.handlePlayeAction(this.playerTwo.state, "mouseButtom");
         }
     }
+
+	async resetPlayers(player) {
+		this.clearCanvas();
+		if (player === "playerTwo") {
+			this.playerOne.state = "attack";
+			this.playerTwo.state = "retreat";
+			this.topBackgroundColor = this.attackColor;
+			this.bottomBackgroundColor = this.retreatColor;
+			this.topButton = this.topAttackButton;
+			this.bottomButton = this.bottomRetreatButton;
+		}
+		else {
+			this.playerOne.state = "retreat";
+			this.playerTwo.state = "attack";
+			this.topBackgroundColor = this.retreatColor;
+			this.bottomBackgroundColor = this.attackColor;
+			this.topButton = this.topRetreatButton;
+			this.bottomButton = this.bottomAttackButton;
+		}
+		this.playerOne.handCurrentY = this.playerOne.hand.getInitialY();
+		this.playerTwo.handCurrentY = this.playerTwo.hand.getInitialY();
+		this.playerOne.score = 0;
+		this.playerTwo.score = 0;
+		this.playerOne.win = false;
+		this.playerTwo.win = false;
+		this.playerOne.isPlayerAnimating = false;
+		this.playerTwo.isPlayerAnimating = false;
+		this.playerOne.isPlayerFalling = true;
+		this.playerOne.isPlayerRising = true;
+		this.playerTwo.isPlayerFalling = true;
+		this.playerTwo.isPlayerRising = true;
+		this.isLoading = false;
+		this.playerOne.isFrozen = false;
+		this.playerTwo.isFrozen = false;
+	}
 }
 
 export default onlineGame;

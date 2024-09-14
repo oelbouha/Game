@@ -4,8 +4,8 @@ import game  from "./game.js";
 
 
 // Variables for shaking effect
-let shakeDuration = 500; // Duration of the shake in milliseconds
-let shakeMagnitude = 10; // Magnitude of the shake
+let shakeDuration = 600; // Duration of the shake in milliseconds
+let shakeMagnitude = 16; // Magnitude of the shake
 let shakeTime = 0;
 
 function sleep(ms) {
@@ -154,8 +154,19 @@ class Player {
 		cancelAnimationFrame(this.animationFrame);
 	}
 	
+	resetHandPosition() {
+        this.handCurrentY = this.hand.getInitialY();
+        this.isPlayerAnimating = false;
+        this.isPlayerRising = true;
+        this.isPlayerFalling = true;
+    }
+
 	async switchRoles() {
-		await this.game.loadGame("Switching Roles", 50);
+		await this.game.loadGame("Switching Roles", 100);
+
+		this.resetHandPosition();
+		this.opponent.resetHandPosition();
+
 		if (this.position === "top" && this.state === "attack") {
 			this.state = "retreat";
 			this.opponent.state = "attack";
@@ -183,8 +194,8 @@ class Player {
 		// Draw slap effect
 		let handY = this.getHandCurrentY();
 		if (this.position === "top")
-			handY = this.opponent.getHandCurrentY();;
-
+			handY = this.opponent.getHandCurrentY();
+	
 		this.slapEffectImage.draw(this.context, this.canvasWidth / 2 - this.slapEffectImage.width / 2, handY);
 		this.slapEffectImage1.draw(this.context, this.canvasWidth / 2 - this.slapEffectImage1.width / 2, handY);
 	
@@ -205,13 +216,19 @@ class Player {
 				this.isPlayerAnimating = true;
 				this.opponent.isPlayerAnimating = true;
 	
-				// Return hand to initial position
+				// Return both hands to their initial positions
 				this.handCurrentY = this.hand.getInitialY();
+				this.opponent.handCurrentY = this.opponent.hand.getInitialY();
+	
+				// Reset animation states for both players
 				if (this.position === "top") {
 					this.isPlayerFalling = true;
+					this.opponent.isPlayerRising = true;
 				} else {
 					this.isPlayerRising = true;
+					this.opponent.isPlayerFalling = true;
 				}
+	
 				// Check for win condition after animation is complete
 				if (this.score >= this.maxScore) {
 					this.win = true;
@@ -257,35 +274,37 @@ class Player {
 				if (this.isHitTheOpponent()) {
 					await this.handleHit();
 				} else {
+					this.opponent.stopAnimation();
 					this.isMissed = true;
 				}
-			this.isPlayerFalling = false;
-			this.isPlayerPaused = true;
-			setTimeout(() => {
-				this.isPlayerPaused = false;
-				this.animateTopAttack();
-			}, this.pauseDuration);
-			return;
-		}
+				this.isPlayerFalling = false;
+				this.isPlayerPaused = true;
+				setTimeout(() => {
+					this.isPlayerPaused = false;
+					this.animateTopAttack();
+				}, this.pauseDuration);
+				return;
+			}
         } else {
-            this.handCurrentY -= this.animationSpeed;
+			this.handCurrentY -= this.animationSpeed;
             if (this.handCurrentY <= this.hand.getInitialY()) {
-                this.handCurrentY = this.hand.getInitialY();
+				this.handCurrentY = this.hand.getInitialY();
                 this.isPlayerAnimating = false;
                 this.isPlayerFalling = true;
             }
         }
 	}
-
+	
 	async animateButtomAttack() {
 		if (this.isPlayerRising) {
 			this.handCurrentY -= this.animationSpeed;
 			if (this.handCurrentY <= this.maxAttackHeight) {
 				this.handCurrentY = this.maxAttackHeight;
-
+				
 				if (this.isHitTheOpponent()) {
 					await this.handleHit();
 				} else {
+					this.opponent.stopAnimation();
 					this.isMissed = true;
 				}
 
@@ -348,36 +367,36 @@ class Player {
 			}
 		}
 		else {
-			this.handCurrentY += this.animationSpeed;
-			if (this.handCurrentY >= this.hand.getInitialY()) {
-				this.handCurrentY = this.hand.getInitialY();
-				this.isPlayerAnimating = false;
-				this.isPlayerRising = true;
-
+					this.handCurrentY += this.animationSpeed;
+					if (this.handCurrentY >= this.hand.getInitialY()) {
+						this.handCurrentY = this.hand.getInitialY();
+						this.isPlayerAnimating = false;
+						this.isPlayerRising = true;
+					}
 			}
 		}
-	}
-	
-	animateButtomRetreat() {
-		if (this.isPlayerFalling) {
-			this.handCurrentY += this.animationSpeed;
-			if (this.handCurrentY >= this.maxRetreat) {
-				this.handCurrentY =  this.maxRetreat;
-				this.isPlayerFalling = false;
-				this.isPlayerPaused = true;
-				setTimeout(() => {
-					this.isPlayerPaused = false;
-					this.animateButtomRetreat();
-				}, this.pauseDuration);
-				return;
-			}
-		} else {
-			this.handCurrentY -= this.animationSpeed;
-			if (this.handCurrentY <= this.hand.getInitialY()) {
-				this.handCurrentY = this.hand.getInitialY();
-				this.isPlayerAnimating = false;
-				this.isPlayerFalling = true;
-			}
+		
+		animateButtomRetreat() {
+			if (this.isPlayerFalling) {
+				this.handCurrentY += this.animationSpeed;
+				if (this.handCurrentY >= this.maxRetreat) {
+					this.handCurrentY =  this.maxRetreat;
+					this.isPlayerFalling = false;
+					this.isPlayerPaused = true;
+					setTimeout(() => {
+						this.isPlayerPaused = false;
+						this.animateButtomRetreat();
+					}, this.pauseDuration);
+					return;
+				}
+			} else {
+					this.handCurrentY -= this.animationSpeed;
+					if (this.handCurrentY <= this.hand.getInitialY()) {
+						this.handCurrentY = this.hand.getInitialY();
+						this.isPlayerAnimating = false;
+						this.isPlayerFalling = true;
+					}
+
 		}
 	}
 
