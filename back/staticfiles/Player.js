@@ -162,7 +162,7 @@ class Player {
     }
 
 	async switchRoles() {
-		await this.game.loadGame("Switching Roles", 100);
+		// await this.game.loadGame("Switching Roles", 100);
 
 		this.resetHandPosition();
 		this.opponent.resetHandPosition();
