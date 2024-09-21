@@ -59,6 +59,7 @@ prevBtn.addEventListener('click', function () {
 function startOffline() {
 	function	startGame() {
 		fronDiv.style.display = 'none';
+		
 		let offline_game = new offlineGame(playerTwoHnad, playerOneHnad);
 		offline_game.startGame();
 	}
