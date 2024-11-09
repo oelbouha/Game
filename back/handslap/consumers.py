@@ -5,6 +5,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 class GameConsumer(AsyncWebsocketConsumer):
     connected_players = []
     index = 0
+
     async def connect(self):
         GameConsumer.connected_players.append(self)
         print ("Connected", len(GameConsumer.connected_players))
@@ -42,6 +43,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             'which_player': 'Player 1' if self.index % 2 else 'Player 2'
         }))
 
+
     async def disconnect(self, close_code):
         print("Disconnected")
         if self in GameConsumer.connected_players:
@@ -53,6 +55,7 @@ class GameConsumer(AsyncWebsocketConsumer):
             )
 
     async def receive(self, text_data):
+        print("receive: ", text_data)
         try:
             text_data_json = json.loads(text_data)
             # print("text data: ", text_data)
@@ -74,9 +77,14 @@ class GameConsumer(AsyncWebsocketConsumer):
             print("Error")
 
     async def game_message(self, event):
+        print("game_message: ", event)
         message = event.get('message')
         # print("Sending: ", message)
         # Send message to WebSocket
         await self.send(text_data=json.dumps({
             'message': message,
         }))
+
+
+
+# send "start game" when two players connected 

@@ -45,7 +45,7 @@ class game {
 		this.handleKeyPress = this.handleKeyPress.bind(this);
 
     	this.canvas.addEventListener("click", this.handleCanvasClick);
-		this.canvas.addEventListener("keydown", this.handleKeyPress);
+		this.canvas.addEventListener("keyup", this.handleKeyPress);
 
 		this.attackColor = "#FFA500";
 		this.retreatColor = "#317AB3";
@@ -160,7 +160,7 @@ class game {
 			this.playerOne.update();
 			this.playerTwo.update();
 		}
-
+		
 		if (this.isLoading == false) {
 			this.drawAll();
 			requestAnimationFrame(() => this.gameLoop());

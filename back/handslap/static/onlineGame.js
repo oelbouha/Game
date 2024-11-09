@@ -1,5 +1,5 @@
-import game_Canvas from './canvas.js';
-import CustomImage from './image.js';
+import game_Canvas from './Canvas.js';
+import CustomImage from './Image.js';
 import Player from './Player.js';
 import game from './game.js'
 
