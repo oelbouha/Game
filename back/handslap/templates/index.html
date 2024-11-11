@@ -10,17 +10,24 @@
 	<div id="game">
 		<div id="gameFront">
 
-			<div id="playerContainer">
-				<div id="playerText"><h1> Chose Player One Hand </h1></div>
-				<div id = "imagesContainer" >
-					<button id="prevBtn"> prev </button>
-					<div id = "playerHandImageContainer">
-						<img id="playerHandImage" src="{% static 'assets/hands/hand5.png' %}" alt="Player Hand">
+			<div id="game-home">
+				<div id="slide-container"></div>
+				<div id="image-container">
+					<div id="info"></div>
+					<div id="image">
+						<img id="playerHandImage" src="{% static 'assets/hands/hand5.png' %}" alt="">
 					</div>
-					<button id="nextBtn"> next </button>
 				</div>
-				<div id = "readyBtnContainer">
-					<button id="readyBtn"> Ready </button>
+				<div id="player-container">
+					<div id="counter">	1 / 16 </div>
+					<div id="game-info">Hand Slap game is an entertaining game which is almost known and played by everyone in real life. What about having the same excitement on your phone, tablet or PC against your friend? First of all choose the hand model and then let the struggle begin! </div>
+					<button id="readyBtn">confirm</button>
+					<!-- <div id="readyBtn">
+						<span class="btnText">Ready</span>
+						<img id="checkmark" id="nextBtn" src="{% static 'assets/checkmark.svg' %}">
+					</div> -->
+					<img class="navBtn" id="nextBtn" src="{% static 'assets/next.svg' %}">
+					<img class="navBtn" id="prevBtn" src="{% static 'assets/prev.svg' %}">
 				</div>
 			</div>
 		
@@ -36,3 +43,16 @@
 	<script type="module" src="{% static 'main.js' %}"> </script>
 </body>
 </html>
+
+
+<!-- <div id="playerText"><h1> Chose Player One Hand </h1></div>
+<div id = "imagesContainer" >
+	<div id = "playerHandImageContainer">
+		<img id="playerHandImage" src="" alt="">
+	</div>
+</div>
+
+
+<div id = "readyBtnContainer">
+	<button id="readyBtn"> Confirm </button>
+</div> -->

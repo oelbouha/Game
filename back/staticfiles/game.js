@@ -10,6 +10,9 @@ function sleep(ms) {
 
 class game {
 	constructor(playerOneHand = null, playerTwoHand = null) {
+		if (!playerOneHand || !playerTwoHand) {
+			console.warn("there is no hand")
+		}
 		this.gameCanvas = new game_Canvas();
 		this.context = this.gameCanvas.getContext();
 		this.canvas = this.gameCanvas.getCanvas();

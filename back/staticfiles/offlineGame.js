@@ -10,8 +10,8 @@ function sleep(ms) {
 
 class offlineGame extends game {
 	constructor(playerOneHand, playerTwoHand) {
-
 		super(playerOneHand, playerTwoHand);
+
 	}
 
 	async initGame() {

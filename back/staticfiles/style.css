@@ -1,4 +1,6 @@
 
+@import url('https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css');
+
 body, html {
 	height: 100%;
 	width: 100%;
@@ -7,6 +9,7 @@ body, html {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	overflow: hidden;
 }
   
 #game {
@@ -36,10 +39,10 @@ body, html {
 }
 
 #playerContainer {
-	background-color: #3072a8;
+	background-color: #20303d;
 	display: flex;
-	flex-direction: column;
-	justify-content: end;
+	flex-direction: row;
+	justify-content: center;
 	align-items: center;
 	width:  1200px;
 	height: 1000px;
@@ -49,52 +52,243 @@ body, html {
 
 
 #imagesContainer {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	gap: 14px;
-	z-index: 4;
+	position: relative;
+	background: #f7f7f7;
+	border-radius: 12px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 #playerHandImageContainer {
-	align-items: center;
-	width: 200px;
-	height: 450px;
+	display: flex;
+	align-items: end;
+	width:  500px;
+	height: 500px;
 	overflow: hidden;
 	position: relative;
-	/* border: #cef3cf 2px solid; */
+	justify-content: center;
+}
+
+.progress-dot.active {
+	height: 25px;
+}
+.progress-dot:hover:not(.active) {
+	background: rgba(255, 255, 255, 0.75);
+	transform: scale(1.1);
+	border: 1.5px solid #FFF;
+	height: 25px;
+}
+
+
+#game-home {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	position: relative;
+	overflow: hidden;
+}
+
+#player-container {
+	height: 100%;
+	width: 50%;
+	background-color: #303030;
+	z-index: 8;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	justify-content: center;
+	align-items: start;
+	padding-left: 40px;
+	overflow: hidden;
+	transition: transform 8s cubic-bezier(0.9, 0, 0.1, 1);
+}
+#slide-container {
+	position: absolute;
+	bottom: 50%;
+	left: 50%;
+	transform: translate(-50%, +50%);
+	display: flex;
+	gap: 8px;
+	padding: 10px 14px;
+	background: rgb(84, 84, 84);
+	border-radius: 20px;
+	backdrop-filter: blur(7px);
+	flex-direction: column;
+	z-index: 9;
+	box-shadow: 3px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+#checkmark {
+	width: 40px;
+	height: 40px;
+}
+#readyBtn {
+	border: none;
+	font-size: 29px;
+	color: white;
+	border: 1px solid white;
+	width: 170px;
+	height: 60px;
+	cursor: pointer;
+	background-color: rgb(162, 161, 161);
+	box-shadow: 0px 0px 10px rgba(25, 23, 23, 0.2);
+	overflow: hidden;
+
+	/* transition: all 1s ease-in-out; */
+}
+
+#readyBtn.animated {
+	border-radius: 80.5px;
+	width:  60px;
+	height: 60px;
+	font-size: 0;
+}
+
+#image {
+	width: 350px;
+	height: 350px;
+	border-radius: 50%;
+	background-color: rgb(162, 161, 161);
+	box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	overflow: hidden;
+	/* transition: transform 2s cubic-bezier(0.9, 0, 0.1, 1); */
+}
+
+#counter {
+  	color: white;
+}
+
+#info, #game-info {
+	width: 80%;
+	color: white;
+}
+
+#info {
+	position: absolute;
+	top: 10%;
+	left: 20%;
+	color: black;
+	font-size: 36px;
+}
+
+
+.progress-dot {
+    width: 10px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 4px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+#image-container {
+    position: relative;
+    height: 100%;
+    width: 50%;
+    background-color: #6a6a6a;
+    z-index: 7;
+    display: flex;
+	flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    transition: transform 8s cubic-bezier(0.9, 0, 0.1, 1); /* Increased from 2s to 8s */
 }
 
 #playerHandImage {
+    width: 150px;
+    height: 350px;
+    object-fit: cover;
+    object-position: top;
+    transition: transform 2s cubic-bezier(0.9, 0, 0.1, 1); /* Increased from 2s to 8s */
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(-200%);
+        opacity: 0.8;
+    }
+}
+
+@keyframes handSlideIn {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes handSlideOut {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(-200%);
+        opacity: 0;
+    }
+}
+
+.animate-in {
+    animation: slideIn 1s forwards; /* Increased from 0.3s to 2s */
+}
+
+.animate-out {
+    animation: slideOut 1s forwards; /* Increased from 0.3s to 1s */
+}
+
+.animate-handIn {
+    animation: handSlideIn 1s forwards; /* Increased from 0.3s to 1s */
+}
+
+.animate-handOut {
+    animation: handSlideOut 0.5s forwards; /* Increased from 0.3s to 2s */
+}
+
+#readyBtn:hover {
+	
+	background-color: rgb(43, 46, 62);
+}
+
+.navBtn {
+	width: 35px;
+	cursor: pointer;
 	position: absolute;
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	object-position: top;
+	bottom: 3%;
+	transform: translateY(-50%);
 }
-
-#readyBtn {
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 30px;
-	background-color: #e5e3f3;
-	/* border-radius: 15px; */
-	margin-bottom: 10px;
-	border: none;
-	color: black;
-	width: 300px;
-	height: 80px;
+#nextBtn {
+	right: 40px;
 }
-
-#nextBtn, #prevBtn {
-	font-family: Arial, Helvetica, sans-serif;
-	width: 100px;
-	height: 50px;
-	font-size: 18px;
-	padding: 10px 20px;
-	border: none;
-	background-color: #e5e3f3;
+#prevBtn {
+	right: 90px;
+	z-index: 10;
 }
-
 
 #playerText {
 	position: absolute;
