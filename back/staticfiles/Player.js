@@ -35,7 +35,7 @@ class Player {
 	
 	initPlayer() {
 		this.win = false;
-		this.maxScore = 5;
+		this.maxScore = this.game.winScore;
 		this.harmLevel = 6;
 		this.isPlayerPaused = false;
 		this.score = 0;
@@ -162,7 +162,7 @@ class Player {
     }
 
 	async switchRoles() {
-		// await this.game.loadGame("Switching Roles", 100);
+		await this.game.loadGame("Switching Roles", 300);
 
 		this.resetHandPosition();
 		this.opponent.resetHandPosition();
@@ -274,6 +274,9 @@ class Player {
 				if (this.isHitTheOpponent()) {
 					await this.handleHit();
 				} else {
+					// draw missed effect iamge
+					// this.missedImage.draw(this.context, this.canvasWidth / 2 - this.missedImage.width / 2, this.handCurrentY);
+					// this.missedImage.draw(this.context, this.canvasWidth / 2 - this.missedImage.width / 2, this.handCurrentY);
 					this.opponent.stopAnimation();
 					this.isMissed = true;
 				}
@@ -304,6 +307,8 @@ class Player {
 				if (this.isHitTheOpponent()) {
 					await this.handleHit();
 				} else {
+					// this.missedImage.draw(this.context, this.canvasWidth / 2 - this.missedImage.width / 2, this.handCurrentY);
+					// this.missedImage.draw(this.context, this.canvasWidth / 2 - this.missedImage.width / 2, this.handCurrentY);
 					this.opponent.stopAnimation();
 					this.isMissed = true;
 				}

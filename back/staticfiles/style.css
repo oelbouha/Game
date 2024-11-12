@@ -38,7 +38,7 @@ body, html {
 	z-index: 2;
 }
 
-#playerContainer {
+/* #playerContainer {
 	background-color: #20303d;
 	display: flex;
 	flex-direction: row;
@@ -48,6 +48,11 @@ body, html {
 	height: 1000px;
 	gap: 2px;
 	z-index: 3;
+} */
+.win-score {
+	color: white;
+	font-size: 20px;
+	margin-bottom: -10px;
 }
 
 
@@ -92,7 +97,7 @@ body, html {
 #player-container {
 	height: 100%;
 	width: 50%;
-	background-color: #303030;
+	background-color: #00203FFF;
 	z-index: 8;
 	display: flex;
 	flex-direction: column;
@@ -111,12 +116,12 @@ body, html {
 	display: flex;
 	gap: 8px;
 	padding: 10px 14px;
-	background: rgb(84, 84, 84);
+	background: #00203f;
 	border-radius: 20px;
 	backdrop-filter: blur(7px);
 	flex-direction: column;
 	z-index: 9;
-	box-shadow: 3px 4px 6px rgba(0, 0, 0, 0.1);
+	box-shadow: 2px 1px 22px rgba(255, 254, 254, 0.1)
 }
 
 
@@ -125,15 +130,15 @@ body, html {
 	height: 40px;
 }
 #readyBtn {
-	border: none;
+	order: none;
 	font-size: 29px;
 	color: white;
 	border: 1px solid white;
 	width: 170px;
 	height: 60px;
 	cursor: pointer;
-	background-color: rgb(162, 161, 161);
-	box-shadow: 0px 0px 10px rgba(25, 23, 23, 0.2);
+	background: #00203f;
+	box-shadow: rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset;
 	overflow: hidden;
 
 	/* transition: all 1s ease-in-out; */
@@ -160,6 +165,7 @@ body, html {
 }
 
 #counter {
+	display: none;
   	color: white;
 }
 
@@ -169,11 +175,9 @@ body, html {
 }
 
 #info {
-	position: absolute;
-	top: 10%;
-	left: 20%;
-	color: black;
-	font-size: 36px;
+	font-weight: bold;
+	color: white;
+	font-size: 38px;
 }
 
 
@@ -221,6 +225,27 @@ body, html {
     }
 }
 
+@keyframes slide-in-right {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+@keyframes slide-out-left {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(-200%);
+        opacity: 0;
+    }
+}
+
 @keyframes slideOut {
     from {
         transform: translateY(0);
@@ -234,7 +259,7 @@ body, html {
 
 @keyframes handSlideIn {
     from {
-        transform: translateY(100%);
+        transform: translateY(150%);
         opacity: 0;
     }
     to {
@@ -254,6 +279,7 @@ body, html {
     }
 }
 
+
 .animate-in {
     animation: slideIn 1s forwards; /* Increased from 0.3s to 2s */
 }
@@ -270,9 +296,15 @@ body, html {
     animation: handSlideOut 0.5s forwards; /* Increased from 0.3s to 2s */
 }
 
+.animate-in-right {
+	animation: slide-in-right 1s forwards;
+}
+.animate-out-left {
+	animation: slide-out-left 1s forwards;
+}
+
 #readyBtn:hover {
-	
-	background-color: rgb(43, 46, 62);
+	background-color: rgb(2, 12, 67);
 }
 
 .navBtn {
@@ -290,6 +322,16 @@ body, html {
 	z-index: 10;
 }
 
+#score-info-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 16px;
+}
+
+#rangeValue {
+	color: white;
+}
 #playerText {
 	position: absolute;
 	top: 16px;

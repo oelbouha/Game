@@ -9,7 +9,7 @@ function sleep(ms) {
 }
 
 class game {
-	constructor(playerOneHand = null, playerTwoHand = null) {
+	constructor(playerOneHand = null, playerTwoHand = null, winScore) {
 		if (!playerOneHand || !playerTwoHand) {
 			console.warn("there is no hand")
 		}
@@ -19,6 +19,7 @@ class game {
 		this.canvas.tabIndex = 0;
 		this.canvas.focus();
 
+		this.winScore = winScore
 		this.isLoading = false;
 
 		this.winImage = new CustomImage(STATIC_URL + "/assets/winner.png");
@@ -50,14 +51,14 @@ class game {
     	this.canvas.addEventListener("click", this.handleCanvasClick);
 		this.canvas.addEventListener("keydown", this.handleKeyPress);
 
-		this.attackColor = "#FFA500";
-		this.retreatColor = "#317AB3";
+		this.attackColor = "#ba499f";
+		this.retreatColor = "#317abf";
 
 		this.topButton = this.topRetreatButton;
 		this.bottomButton = this.bottomAttackButton;
 
-		this.topBackgroundColor = "#FFA500";
-		this.bottomBackgroundColor = "#317AB3";
+		this.topBackgroundColor = "#ba499f";
+		this.bottomBackgroundColor = "#E69A8DFF";
 
 		this.cooldownPeriod = 800;
         this.playerOneLastActionTime = 0;
@@ -269,6 +270,7 @@ class game {
 	}
 
 	async switchColors() {
+		
 		let temp = this.topBackgroundColor;
 		this.topBackgroundColor = this.bottomBackgroundColor;
 		this.bottomBackgroundColor = temp;
